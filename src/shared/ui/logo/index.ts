@@ -1,0 +1,1 @@
+export { GamegooLogo } from "./GamegooLogo";

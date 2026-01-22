@@ -2,11 +2,11 @@
 
 import { useQuery } from "@tanstack/react-query";
 
-import { clientSideOpenapiClient } from "@/shared/api/openapiClient";
 
 import { userKeys } from "@/entities/user/model/userKeys";
 
 import { useAuthStore } from "@/features/auth";
+import { clientSideOpenapiClient } from "@/shared/api/clientSideOpenapiClient";
 
 export const useUserInfo = () => {
   const { accessToken } = useAuthStore();

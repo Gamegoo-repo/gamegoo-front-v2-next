@@ -5,23 +5,45 @@ type AuthStatus = "idle" | "authenticated" | "unauthenticated";
 
 type AuthStore = {
   accessToken: string | null;
-  setAccessToken: (accessToken: string | null) => void;
-
   authStatus: AuthStatus;
-  setAuthStatus: (authStatus: AuthStatus) => void;
 
+  setAccessToken: (token: string | null) => void;
+  setAuthStatus: (status: AuthStatus) => void;
+
+  login: (token: string) => void;
+  logout: () => void;
   clearAuth: () => void;
 };
 
 export const useAuthStore = create<AuthStore>()(
-  // FIX: 디버깅용
   devtools((set) => ({
     accessToken: null,
-    setAccessToken: (accessToken) => set({ accessToken }),
-
     authStatus: "idle",
-    setAuthStatus: (authStatus) => set({ authStatus }),
 
-    clearAuth: () => set({ accessToken: null, authStatus: "unauthenticated" })
+    setAccessToken: (token) =>
+      set({
+        accessToken: token,
+        authStatus: token ? "authenticated" : "unauthenticated",
+      }),
+
+    setAuthStatus: (status) => set({ authStatus: status }),
+
+    login: (token) =>
+      set({
+        accessToken: token,
+        authStatus: "authenticated",
+      }),
+
+    logout: () =>
+      set({
+        accessToken: null,
+        authStatus: "unauthenticated",
+      }),
+
+    clearAuth: () =>
+      set({
+        accessToken: null,
+        authStatus: "unauthenticated",
+      }),
   }))
 );

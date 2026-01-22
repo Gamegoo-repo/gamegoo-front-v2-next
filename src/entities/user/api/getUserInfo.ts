@@ -1,9 +1,9 @@
 "use server";
 
+import { clientSideOpenapiClient } from "@/shared/api/clientSideOpenapiClient";
 import { getCookie } from "cookies-next/server";
 import { cookies } from "next/headers";
 
-import { clientSideOpenapiClient } from "@/shared/api/openapiClient";
 
 export const getUserInfo = async () => {
   const refreshToken = await getCookie("refreshToken", { cookies });

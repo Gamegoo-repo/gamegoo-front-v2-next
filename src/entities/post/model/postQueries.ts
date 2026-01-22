@@ -2,9 +2,9 @@
 
 import { useQuery } from "@tanstack/react-query";
 
-import { clientSideOpenapiClient } from "@/shared/api/openapiClient";
 
 import { postKeys } from "@/entities/post";
+import { clientSideOpenapiClient } from "@/shared/api/clientSideOpenapiClient";
 
 export const usePost = (page: number) => {
   return useQuery({

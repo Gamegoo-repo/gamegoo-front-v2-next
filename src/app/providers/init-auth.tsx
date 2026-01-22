@@ -2,48 +2,67 @@
 
 import { usePathname } from "next/navigation";
 import { useEffect } from "react";
-
 import { useAuthStore } from "@/features/auth";
 
-/**
- * 유저가 새로고침하거나 페이지에 새로 진입했을 때 일회성으로 유저 정보를 받아서 zustand에 저장하는 provider
- */
-
-export default function InitAuthProvider({ children }: { children: React.ReactNode }) {
-  const { accessToken, setAccessToken, authStatus, setAuthStatus, clearAuth } = useAuthStore();
+export default function InitAuthProvider({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const pathname = usePathname();
-
   const isRiotCallback = pathname.includes("/riot/callback");
 
+  const accessToken = useAuthStore((s) => s.accessToken);
+  const authStatus = useAuthStore((s) => s.authStatus);
+  const setAccessToken = useAuthStore((s) => s.setAccessToken);
+  const setAuthStatus = useAuthStore((s) => s.setAuthStatus);
+  const clearAuth = useAuthStore((s) => s.clearAuth);
+
   useEffect(() => {
-    if (isRiotCallback || accessToken || authStatus !== "idle") return;
+    if (isRiotCallback) return;
+    if (accessToken) return;
+    if (authStatus !== "idle") return;
+
+    let cancelled = false;
 
     (async () => {
-      // 401 에러 방지용
-      const hasTokenRes = await fetch("/api/auth/has-refresh-token");
-      const { hasRefreshToken } = await hasTokenRes.json();
-
-      if (!hasRefreshToken) {
-        setAuthStatus("unauthenticated");
-        return;
-      }
-
-      // refreshToken이 존재하면 accessToken을 zustand에 저장
-      const res = await fetch("/api/auth/refresh-access-token", {
-        method: "POST"
+      const res = await fetch("/api/auth/refresh", {
+        method: "POST",
+        credentials: "include",
       });
 
       if (!res.ok) {
+        if (cancelled) return;
         clearAuth();
         setAuthStatus("unauthenticated");
         return;
       }
 
-      const { accessToken: newAccessToken } = await res.json();
-      setAccessToken(newAccessToken);
+      const data: { accessToken: string } = await res.json();
+
+      if (!data?.accessToken) {
+        if (cancelled) return;
+        clearAuth();
+        setAuthStatus("unauthenticated");
+        return;
+      }
+
+      if (cancelled) return;
+      setAccessToken(data.accessToken);
       setAuthStatus("authenticated");
     })();
-  }, [accessToken, isRiotCallback]);
+
+    return () => {
+      cancelled = true;
+    };
+  }, [
+    isRiotCallback,
+    accessToken,
+    authStatus,
+    setAccessToken,
+    setAuthStatus,
+    clearAuth,
+  ]);
 
   return <>{children}</>;
 }

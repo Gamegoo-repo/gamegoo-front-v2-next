@@ -10,8 +10,10 @@ import {
   TableRow
 } from "@/shared/ui/table";
 
-import { Post } from "@/entities/post";
-import { formatTime } from "@/entities/post/model/formatTime";
+
+import { formatTime } from "@/shared/libs/date/formatTime";
+import { PostList } from "../../../entities/post/api/post.response.type";
+
 
 const TABLE_HEADER_LABELS = [
   "소환사",
@@ -25,7 +27,7 @@ const TABLE_HEADER_LABELS = [
   "등록일시"
 ] as const;
 
-export function PostTable({ posts, isLoading }: { posts: Post; isLoading: boolean }) {
+export function PostTable({ posts, isLoading }: { posts: PostList; isLoading: boolean }) {
   const router = useRouter();
 
   if (!posts) return null;

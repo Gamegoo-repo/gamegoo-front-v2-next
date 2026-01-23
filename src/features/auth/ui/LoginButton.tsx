@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 
-import { useAuthStore } from "@/features/auth/model/useAuthStore";
+import { useAuthStore } from "@/features/auth/model/store/useAuthStore";
 import { ProfileButton } from "@/features/profile";
 
 export function LoginButton() {

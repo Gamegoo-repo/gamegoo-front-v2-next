@@ -1,5 +1,5 @@
 import { serverSideOpenapiClient } from "@/shared/api/serverSideOpenApiClient";
-import { authCookies } from "@/shared/auth/cookies";
+import { authCookies } from "@/shared/libs/cookies/cookies";
 import { NextResponse } from "next/server";
 
 const REFRESH_TOKEN_KEY = "refreshToken";

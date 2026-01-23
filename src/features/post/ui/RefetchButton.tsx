@@ -1,9 +1,9 @@
 "use client";
 
+import { POST_QUERYKEYS } from "@/entities/post/constants/queryKeys";
 import { useQueryClient } from "@tanstack/react-query";
 import { RefreshCcw } from "lucide-react";
 
-import { postKeys } from "@/entities/post/model/postKeys";
 
 export function RefetchButton() {
   const queryClient = useQueryClient();
@@ -13,7 +13,7 @@ export function RefetchButton() {
       className="p-1!"
       onClick={() =>
         queryClient.invalidateQueries({
-          queryKey: postKeys.list(1)
+          queryKey: [POST_QUERYKEYS.PostList, {page:1}]
         })
       }
     >

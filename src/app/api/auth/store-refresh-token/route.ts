@@ -1,4 +1,4 @@
-import { authCookies } from "@/shared/auth/cookies";
+import { authCookies } from "@/shared/libs/cookies/cookies";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(req: NextRequest) {

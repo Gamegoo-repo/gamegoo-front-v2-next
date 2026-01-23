@@ -1,4 +1,4 @@
-import { authCookies } from "@/shared/auth/cookies";
+import { authCookies } from "@/shared/libs/cookies/cookies";
 import { encode } from "js-base64";
 import { NextResponse } from "next/server";
 

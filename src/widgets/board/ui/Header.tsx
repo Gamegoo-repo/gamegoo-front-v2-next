@@ -1,4 +1,4 @@
-import { RefetchButton } from "@/features/board";
+import { RefetchButton } from "@/features/post";
 
 export function Header() {
   return (

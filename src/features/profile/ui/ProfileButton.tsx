@@ -60,7 +60,7 @@ export function ProfileButton() {
                   className="cursor-pointer text-left"
                   onClick={async () => {
                     await fetch(
-                      `${process.env.NEXT_PUBLIC_APP_URL}/api/auth/revoke-refresh-token`,
+                      `${process.env.NEXT_PUBLIC_APP_URL}/api/auth/logout`,
                       {
                         method: "POST",
                         credentials: "include"

@@ -2,15 +2,6 @@ import { serverSideOpenapiClient } from "@/shared/api/serverSideOpenApiClient";
 import { authCookies } from "@/shared/libs/cookies/cookies";
 import { NextResponse } from "next/server";
 
-const REFRESH_TOKEN_KEY = "refreshToken";
-
-const refreshTokenCookieOptions = {
-  httpOnly: true,
-  secure: process.env.NODE_ENV === "production",
-  sameSite: "lax" as const,
-  path: "/",
-};
-
 export const POST = async () => {
   /**
    * 1) 쿠키에서 refreshToken 읽기 (await 필수)

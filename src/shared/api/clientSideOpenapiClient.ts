@@ -3,6 +3,7 @@ import type { Middleware } from "openapi-fetch";
 
 import { useAuthStore } from "@/features/auth";
 import type { paths } from "./schema";
+import { runRefreshOnce } from "./runRefreshOnce";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 if (!API_BASE_URL) {
@@ -13,8 +14,6 @@ const REFRESH_ENDPOINT = "/api/auth/refresh";
 
 const RETRY_HEADER_KEY = "x-auth-retry-count";
 const MAX_RETRY_COUNT = 1;
-
-let refreshPromise: Promise<string | null> | null = null;
 
 /**
  * Authorization 자동 추가
@@ -31,37 +30,6 @@ const authMiddleware: Middleware = {
     return request;
   },
 };
-
-/**
- * refresh는 동시에 여러 번 호출되면 안 되므로 Promise 공유
- */
-async function runRefreshOnce(): Promise<string | null> {
-  if (!refreshPromise) {
-    refreshPromise = (async () => {
-      try {
-        const res = await fetch(REFRESH_ENDPOINT, {
-          method: "POST",
-          credentials: "include",
-        });
-
-        if (!res.ok) return null;
-
-        const data: { accessToken: string } = await res.json();
-
-        if (!data?.accessToken) return null;
-
-        useAuthStore.getState().setAccessToken(data.accessToken);
-        return data.accessToken;
-      } catch {
-        return null;
-      } finally {
-        refreshPromise = null;
-      }
-    })();
-  }
-
-  return refreshPromise;
-}
 
 /**
  * 401이면 refresh 후 재요청 (안전 정책 포함)

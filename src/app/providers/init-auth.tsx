@@ -3,6 +3,7 @@
 import { usePathname } from "next/navigation";
 import { useEffect } from "react";
 import { useAuthStore } from "@/features/auth";
+import { runRefreshOnce } from "@/shared/api/runRefreshOnce";
 
 export default function InitAuthProvider({
   children,
@@ -26,29 +27,18 @@ export default function InitAuthProvider({
     let cancelled = false;
 
     (async () => {
-      const res = await fetch("/api/auth/refresh", {
-        method: "POST",
-        credentials: "include",
-      });
+      const newAccessToken = await runRefreshOnce();
 
-      if (!res.ok) {
+      if (!newAccessToken) {
         if (cancelled) return;
         clearAuth();
         setAuthStatus("unauthenticated");
         return;
       }
 
-      const data: { accessToken: string } = await res.json();
-
-      if (!data?.accessToken) {
-        if (cancelled) return;
-        clearAuth();
-        setAuthStatus("unauthenticated");
-        return;
-      }
 
       if (cancelled) return;
-      setAccessToken(data.accessToken);
+      setAccessToken(newAccessToken);
       setAuthStatus("authenticated");
     })();
 

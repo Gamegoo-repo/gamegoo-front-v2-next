@@ -1,6 +1,6 @@
 "use client";
 
-import { RequestPostLists } from "@/entities/post/api/post.request.type";
+import { RequestPostLists } from "@/entities/post/model/types/request/post.request.type";
 import { useFetchPostListQuery } from "@/features/post/model/hooks/queries/useFetchPostListQuery";
 import { PostTable } from "@/features/post/ui/PostTable";
 

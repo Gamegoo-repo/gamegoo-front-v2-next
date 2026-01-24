@@ -12,7 +12,7 @@ import {
 
 
 import { formatTime } from "@/shared/libs/date/formatTime";
-import { PostList } from "../../../entities/post/api/post.response.type";
+import { PostList } from "../../../entities/post/model/types/response/post.response.type";
 
 
 const TABLE_HEADER_LABELS = [

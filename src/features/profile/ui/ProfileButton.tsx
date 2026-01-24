@@ -3,9 +3,8 @@
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 
-import { useUserInfo } from "@/entities/user";
-
 import { useAuthStore } from "@/features/auth";
+import { useFetchProfileQuery } from "../model/hooks/queries/useFetchProfileQuery";
 
 export const modalItems = [
   { label: "내 정보", href: "profile" },
@@ -20,7 +19,8 @@ export function ProfileButton() {
   const [isOpen, setIsOpen] = useState(false);
   const { clearAuth } = useAuthStore();
   const modalRef = useRef<HTMLElement>(null);
-  const { data: userInfo } = useUserInfo();
+  const { data: userInfo } = useFetchProfileQuery()
+  
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -37,6 +37,7 @@ export function ProfileButton() {
   }, []);
 
   if (!userInfo) return null;
+
 
   return (
     <div className="relative w-40">

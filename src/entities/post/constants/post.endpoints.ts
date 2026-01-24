@@ -1,4 +1,4 @@
-import type { RequestPostLists } from "../api/post.request.type";
+import type { RequestPostLists } from "../model/types/request/post.request.type";
 
 export const POST_END_POINTS = {
   postList: (params: RequestPostLists) => {

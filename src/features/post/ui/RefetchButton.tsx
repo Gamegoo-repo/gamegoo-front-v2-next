@@ -1,6 +1,6 @@
 "use client";
 
-import { POST_QUERYKEYS } from "@/entities/post/constants/queryKeys";
+import { POST_QUERYKEYS } from "@/entities/post/constants/post.queryKeys";
 import { useQueryClient } from "@tanstack/react-query";
 import { RefreshCcw } from "lucide-react";
 

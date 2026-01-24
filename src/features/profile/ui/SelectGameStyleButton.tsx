@@ -4,8 +4,7 @@ import { Plus, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
 import { cn } from "@/shared/libs/cn";
-
-import { useUserInfo } from "@/entities/user";
+import { useFetchProfileQuery } from "../model/hooks/queries/useFetchProfileQuery";
 
 const GAME_STYLE = [
   { gameStyleId: 1, gameStyleName: "광물 탈출" },
@@ -33,7 +32,7 @@ export function SelectGameStyleButton() {
   const [isOpen, setIsOpen] = useState(false);
   const [selectedGameStyleId, setSelectedGameStyleId] = useState<number[]>([]);
   const modalRef = useRef<HTMLDivElement>(null);
-  const { data: userInfo } = useUserInfo();
+  const { data: userInfo } = useFetchProfileQuery();
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {

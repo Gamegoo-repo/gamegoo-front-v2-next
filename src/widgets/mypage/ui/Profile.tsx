@@ -11,9 +11,10 @@ import Silver from "@/shared/assets/tier/silver.svg";
 import Unranked from "@/shared/assets/tier/unranked.svg";
 import { characters } from "@/shared/model";
 
-import { ProfileNameAndTag, Rank, useUserInfo } from "@/entities/user";
-
 import { SelectGameStyleButton, ToggleMicButton } from "@/features/profile";
+import { useFetchProfileQuery } from "@/features/profile/model/hooks/queries/useFetchProfileQuery";
+import { ProfileNameAndTag } from "@/features/profile/ui/ProfileNameAndTag";
+import { Rank } from "@/features/profile/ui/Rank";
 
 export const TIER_ICONS = {
   UNRANKED: Unranked,
@@ -28,7 +29,7 @@ export const TIER_ICONS = {
 } as const;
 
 export function Profile() {
-  const { data: userInfo } = useUserInfo();
+  const { data: userInfo } = useFetchProfileQuery();
 
   if (!userInfo) return null;
 

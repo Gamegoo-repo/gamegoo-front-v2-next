@@ -1,34 +1,17 @@
-import { setCookie } from "cookies-next/server";
-import { cookies } from "next/headers";
+import { authCookies } from "@/shared/libs/cookies/cookies";
 import { NextRequest, NextResponse } from "next/server";
 
-type StoreRefreshToken = {
-  refreshToken: string;
-};
-
-/**
- * /api/auth/store-refresh-token
- *
- * Cookie에 http-only로 refreshToken을 저장하는 API
- */
-
-export const POST = async (req: NextRequest) => {
-  const { refreshToken } = (await req.json()) as StoreRefreshToken;
+export async function POST(req: NextRequest) {
+  const body = (await req.json()) as { refreshToken?: string };
+  const refreshToken = body?.refreshToken;
 
   if (!refreshToken) {
-    return NextResponse.json(
-      { message: "refreshToken이 존재하지 않습니다. [/api/auth/store-refresh-token]" },
-      { status: 401 }
-    );
+    return NextResponse.json({ message: "refreshToken not found" }, { status: 400 });
   }
 
-  await setCookie("refreshToken", refreshToken, {
-    cookies,
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
-    path: "/"
-  });
+  const res = NextResponse.json({ ok: true });
 
-  return NextResponse.json({ ok: true });
-};
+  authCookies.setRefreshToken(res, refreshToken);
+
+  return res;
+}

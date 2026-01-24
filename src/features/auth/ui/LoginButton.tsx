@@ -2,8 +2,9 @@
 
 import Link from "next/link";
 
-import { useAuthStore } from "@/features/auth/model/store/useAuthStore";
+import { useAuthStore } from "../model/store/auth.store";
 import { ProfileButton } from "@/features/profile";
+
 
 export function LoginButton() {
   const { authStatus } = useAuthStore();

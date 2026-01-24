@@ -1,5 +1,8 @@
+"use client";
+
 import { useRouter } from "next/navigation";
 
+import { formatTime } from "@/shared/libs/date/formatTime";
 import {
   Table,
   TableBody,
@@ -10,10 +13,7 @@ import {
   TableRow
 } from "@/shared/ui/table";
 
-
-import { formatTime } from "@/shared/libs/date/formatTime";
 import { PostList } from "../../../entities/post/model/types/response/post.response.type";
-
 
 const TABLE_HEADER_LABELS = [
   "소환사",
@@ -27,7 +27,7 @@ const TABLE_HEADER_LABELS = [
   "등록일시"
 ] as const;
 
-export function PostTable({ posts, isLoading }: { posts: PostList; isLoading: boolean }) {
+export function BoardTable({ posts, isLoading }: { posts: PostList; isLoading: boolean }) {
   const router = useRouter();
 
   if (!posts) return null;

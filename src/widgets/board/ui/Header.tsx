@@ -1,5 +1,7 @@
-import { RefetchButton } from "@/features/post/ui/RefetchButton";
+import { GAME_MODE, TIERS, VOICE } from "@/shared/constants";
+import { DropdownType1 } from "@/shared/ui/select";
 
+import { PositionSelectButton, RefetchButton } from "@/features/board";
 
 export function Header() {
   return (
@@ -9,7 +11,21 @@ export function Header() {
         <RefetchButton />
       </div>
 
-      <div className="flex h-20 items-center gap-4">필터 컴포넌트</div>
+      <div className="flex h-20 items-center gap-4">
+        <DropdownType1
+          values={GAME_MODE}
+          queryString="mode"
+        />
+        <DropdownType1
+          values={TIERS}
+          queryString="tier"
+        />
+        <DropdownType1
+          values={VOICE}
+          queryString="voice"
+        />
+        <PositionSelectButton />
+      </div>
     </header>
   );
 }

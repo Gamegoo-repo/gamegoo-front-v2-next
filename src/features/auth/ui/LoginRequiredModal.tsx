@@ -1,48 +1,47 @@
 "use client";
 
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
-// FIX: 쿠키로 대체
-// FIX: 모달 띄웠을 때 / 페이지로 돌아가는 것 방지
+import { useAuthStore } from "@/features/auth/model/store/auth.store";
 
-export function LoginRequiredModal() {
+export function LoginRequiredModal({ routeBack }: { routeBack: boolean }) {
   const [isOpen, setIsOpen] = useState(false);
   const router = useRouter();
-  const searchParams = useSearchParams();
-
-  const loginRequired = searchParams.get("login-required");
+  const accessToken = useAuthStore((s) => s.accessToken);
 
   useEffect(() => {
-    if (loginRequired !== "true") return;
-    router.replace("/");
-
-    if (loginRequired) {
-      setIsOpen(true);
-      return;
-    }
-
-    setIsOpen(false);
-    return;
-  }, [searchParams]);
+    if (!accessToken) setIsOpen(true);
+  }, []);
 
   return (
     <>
       {isOpen && (
         <div
-          className="absolute top-0 left-0 h-dvh w-dvw bg-gray-800/50"
+          className="fixed inset-0 z-10 h-dvh w-dvw bg-gray-800/50"
           onClick={() => {
+            if (routeBack) {
+              router.back();
+              return;
+            }
+
             setIsOpen(false);
           }}
         >
           <div
             className="absolute bottom-10 left-1/2 flex -translate-x-1/2 flex-col gap-10
 bg-violet-100 p-4 text-4xl font-bold"
+            onClick={(e) => e.stopPropagation()}
           >
-            <span>로그인하삼</span>
+            <span>로그인 ㄱㄱ</span>
             <button
               className="bg-violet-300"
               onClick={() => {
+                if (routeBack) {
+                  router.back();
+                  return;
+                }
+
                 setIsOpen(false);
               }}
             >

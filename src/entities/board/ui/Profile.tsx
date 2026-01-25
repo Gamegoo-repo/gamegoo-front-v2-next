@@ -5,9 +5,10 @@ type ProfileProps = {
   ProfileIcon: FC<SVGProps<SVGElement>>;
   gameName: string;
   tag: string;
+  mic: boolean;
 };
 
-export function Profile({ ProfileIcon, gameName, tag }: ProfileProps) {
+export function Profile({ ProfileIcon, gameName, tag, mic }: ProfileProps) {
   return (
     <>
       <div className="rounded-full bg-white p-1">
@@ -18,10 +19,12 @@ export function Profile({ ProfileIcon, gameName, tag }: ProfileProps) {
         <div className="flex items-center gap-8">
           <h1 className="text-xl font-bold">{gameName}</h1>
 
-          <div className="flex items-center rounded-full border-2 p-1 text-sm">
-            <Mic />
-            마이크 ON
-          </div>
+          {mic && (
+            <div className="flex items-center rounded-full border-2 p-1 text-sm">
+              <Mic />
+              마이크 ON
+            </div>
+          )}
         </div>
 
         <p>#{tag}</p>

@@ -1,30 +1,23 @@
-import { paths } from "@/shared/api/schema";
 import { POSITION_ICONS, TIER_ICONS } from "@/shared/constants";
-import { characters } from "@/shared/model";
 
 import {
   Comments,
   GameStyle,
   MainOrSubPosition,
   PreferredGameMode,
-  Profile,
   Rank,
   RecentPreferredChampions,
   WantPosition,
   WinRate
 } from "@/entities/board";
 
-import { ModalContainer } from "@/widgets/board";
-
-type BoardData =
-  paths["/api/v2/posts/list/{boardId}"]["get"]["responses"]["200"]["content"]["*/*"]["data"];
+import { BoardData, ModalContainer } from "@/features/board";
 
 // FIX: generateMetadata 적용
 
 export async function BoardId({ boardData }: { boardData: BoardData }) {
   if (!boardData) return null;
 
-  const ProfileIcon = characters[boardData.profileImage - 1];
   const SoloTierIcon = TIER_ICONS[boardData.soloTier as keyof typeof TIER_ICONS];
   const FreeTierIcon = TIER_ICONS[boardData.freeTier as keyof typeof TIER_ICONS];
   const MainPositionIcon = POSITION_ICONS[boardData.mainP as keyof typeof POSITION_ICONS];
@@ -42,17 +35,9 @@ export async function BoardId({ boardData }: { boardData: BoardData }) {
     ` ${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
 
   return (
-    <ModalContainer>
-      <div className="space-y-4 p-4">
-        <header className="flex items-center">
-          <Profile
-            ProfileIcon={ProfileIcon}
-            gameName={boardData.gameName}
-            tag={boardData.tag}
-          />
-        </header>
-
-        <main className="space-y-8">
+    <ModalContainer userInfo={boardData}>
+      <div className="mt-[30px] space-y-[6px]">
+        <main className="space-y-[30px]">
           {/* 랭크 */}
           <div className="flex items-center gap-32">
             <Rank
@@ -70,9 +55,9 @@ export async function BoardId({ boardData }: { boardData: BoardData }) {
           </div>
 
           {/* 포지션 */}
-          <div>
-            <h2>포지션</h2>
-            <div className="flex gap-4">
+          <div className="space-y-[6px]">
+            <h2 className="semibold-14">포지션</h2>
+            <div className="bold-12 flex gap-[8px] *:w-1/2 *:rounded-[10px]">
               <MainOrSubPosition
                 MainPositionIcon={MainPositionIcon}
                 SubPositionIcon={SubPositionIcon}
@@ -86,17 +71,14 @@ export async function BoardId({ boardData }: { boardData: BoardData }) {
           </div>
 
           {/* 선호 게임모드 / 챔피언 */}
-          <div className="flex *:flex-1">
-            <div>
-              <h2>선호 게임모드</h2>
+          <div className="flex gap-[8px] *:w-1/2">
+            <div className="space-y-[6px]">
+              <h2 className="semibold-14">선호 게임모드</h2>
               <PreferredGameMode gameMode={boardData.gameMode} />
             </div>
 
-            <div>
-              <h2 className="flex justify-between">
-                <span>최근 선호 챔피언</span>
-                <span>최근 30게임 </span>
-              </h2>
+            <div className="space-y-[6px]">
+              <h2 className="semibold-14 flex justify-between">최근 선호 챔피언</h2>
               <RecentPreferredChampions
                 championStatsResponseList={boardData.championStatsResponseList}
               />
@@ -104,26 +86,26 @@ export async function BoardId({ boardData }: { boardData: BoardData }) {
           </div>
 
           {/* 승률 */}
-          <div>
-            <h2>승률 {boardData.winRate}%</h2>
+          <div className="space-y-[6px]">
+            <h2 className="semibold-14">승률 {boardData.winRate}%</h2>
             <WinRate winRate={boardData.winRate ?? 0} />
           </div>
 
           {/* 게임 스타일 */}
-          <div>
-            <h2>게임 스타일</h2>
+          <div className="space-y-[6px]">
+            <h2 className="semibold-14">게임 스타일</h2>
             <GameStyle gameStyles={boardData.gameStyles} />
           </div>
 
           {/* 한마디 */}
-          <div className="space-y-1">
-            <h2>한마디</h2>
+          <div className="space-y-[6px]">
+            <h2 className="semibold-14">한마디</h2>
             <Comments comments={boardData.contents ?? ""} />
           </div>
-
-          {/* 게시일 */}
-          <div className="text-right">게시일: {result}</div>
         </main>
+
+        {/* 게시일 */}
+        <p className="medium-11 text-right text-gray-500">게시일: {result}</p>
       </div>
     </ModalContainer>
   );

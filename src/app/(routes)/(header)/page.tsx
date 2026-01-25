@@ -1,7 +1,3 @@
-import { Suspense } from "react";
-
-import { LoginRequiredModal } from "@/features/auth";
-
 import { CtaSection, Hero } from "@/widgets/home";
 
 export default function page() {
@@ -14,10 +10,6 @@ export default function page() {
           <CtaSection />
         </div>
       </div>
-
-      <Suspense>
-        <LoginRequiredModal />
-      </Suspense>
     </>
   );
 }

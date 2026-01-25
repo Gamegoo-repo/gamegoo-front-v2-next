@@ -1,31 +1,39 @@
 import { GAME_MODE, TIERS, VOICE } from "@/shared/constants";
-import { DropdownType1 } from "@/shared/ui/select";
+import { DropdownType1RequiredQueryString } from "@/shared/ui/dropdown";
 
-import { PositionSelectButton, RefetchButton } from "@/features/board";
+import { Bump, PositionSelectButton, Post, RefetchButton } from "@/features/board";
 
 export function Header() {
   return (
-    <header className="mt-20">
+    <div className="mt-20">
       <div className="flex justify-between">
         <h2 className="bold-32">게시판</h2>
         <RefetchButton />
       </div>
 
-      <div className="flex h-20 items-center gap-4">
-        <DropdownType1
-          values={GAME_MODE}
-          queryString="mode"
-        />
-        <DropdownType1
-          values={TIERS}
-          queryString="tier"
-        />
-        <DropdownType1
-          values={VOICE}
-          queryString="voice"
-        />
-        <PositionSelectButton />
+      <div className="flex items-center justify-between">
+        <div className="flex h-20 items-center gap-[8px]">
+          <DropdownType1RequiredQueryString
+            values={GAME_MODE}
+            queryString="mode"
+          />
+          <DropdownType1RequiredQueryString
+            values={TIERS}
+            queryString="tier"
+          />
+          <DropdownType1RequiredQueryString
+            values={VOICE}
+            queryString="voice"
+          />
+          <PositionSelectButton />
+        </div>
+
+        <div className="flex items-center gap-[24px]">
+          <Bump />
+
+          <Post />
+        </div>
       </div>
-    </header>
+    </div>
   );
 }

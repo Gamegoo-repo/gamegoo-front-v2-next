@@ -1,10 +1,6 @@
 import { Check } from "lucide-react";
 
-import { paths } from "@/shared/api/schema";
-
-type GameMode = NonNullable<
-  paths["/api/v2/posts/list/{boardId}"]["get"]["responses"]["200"]["content"]["*/*"]["data"]
->["gameMode"];
+import { GameMode } from "@/features/board";
 
 export function PreferredGameMode({ gameMode }: { gameMode: GameMode }) {
   const preferredGameMode = (gameMode: string) => {
@@ -21,8 +17,9 @@ export function PreferredGameMode({ gameMode }: { gameMode: GameMode }) {
   };
 
   return (
-    <div className="flex w-1/2 bg-white">
-      <Check /> <span>{preferredGameMode(gameMode)}</span>
+    <div className="flex h-[56px] gap-1 rounded-[10px] bg-white px-[12px] py-[16px]">
+      <Check className="text-violet-600" />
+      <span className="medium-16">{preferredGameMode(gameMode)}</span>
     </div>
   );
 }

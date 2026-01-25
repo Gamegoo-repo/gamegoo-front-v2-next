@@ -258,4 +258,17 @@
     font-weight: 700;
     line-height: 150%;
   }
+
+  .spin-object {
+    animation: spin-animate 1000ms ease-in-out;
+  }
+
+  @keyframes spin-animate {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(-360deg);
+    }
+  }
 }

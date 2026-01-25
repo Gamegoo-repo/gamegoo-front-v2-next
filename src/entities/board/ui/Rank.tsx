@@ -10,12 +10,12 @@ type RankProps = {
 export function Rank({ Icon, tier, rank, gameType }: RankProps) {
   return (
     <div>
-      <h2>{gameType}</h2>
+      <h2 className="semibold-14">{gameType}</h2>
 
-      <div className="ml-4 flex items-center">
+      <div className="flex items-center">
         <Icon />
-        <p>
-          {tier} {rank}
+        <p className="bold-20">
+          {tier} {tier !== "UNRANKED" && rank}
         </p>
       </div>
     </div>

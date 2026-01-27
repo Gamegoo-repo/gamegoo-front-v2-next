@@ -26,11 +26,3 @@ export const voice = [
   { label: "음성 OFF", value: "UNAVAILABLE" },
   { label: "음성 ON", value: "AVAILABLE" }
 ] as const;
-
-export type Mode = (typeof mode)[number];
-export type Tier = (typeof tier)[number];
-export type Voice = (typeof voice)[number];
-
-export type ModeValue = Mode["value"];
-export type TierValue = Tier["value"];
-export type VoiceValue = Voice["value"];

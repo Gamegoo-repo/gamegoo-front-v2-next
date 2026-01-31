@@ -1,14 +1,15 @@
 "use client";
 
+import { useQueryClient } from "@tanstack/react-query";
 import { EllipsisVertical } from "lucide-react";
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 
 import { POSITION_ICONS, TIER_ICONS } from "@/shared/constants";
 import { cn } from "@/shared/libs/cn";
 import { formatTime } from "@/shared/libs/date/formatTime";
-import { characters, toastMessage } from "@/shared/model";
+import { Tier, characters, toastMessage } from "@/shared/model";
 import { Button } from "@/shared/ui/button";
 import {
   DropdownMenu,
@@ -26,17 +27,31 @@ import {
   TableRow
 } from "@/shared/ui/table";
 
+import { POST_QUERYKEYS } from "@/entities/post";
+
+import { GameMode, Mic, Position } from "@/features/board";
 import { useDeletePostMutation, useFetchPostListQuery } from "@/features/post";
 import { useFetchProfileQuery } from "@/features/profile";
 
-import { PostList } from "../../../entities/post/model/types/response/post.response.type";
-
-export function BoardTable({ posts }: { posts: PostList }) {
+export function BoardTable() {
   const { data: userInfo } = useFetchProfileQuery();
   const router = useRouter();
   const searchParams = useSearchParams();
   const deletePost = useDeletePostMutation();
-  const { isFetching } = useFetchPostListQuery({ page: Number(searchParams.get("page")) });
+  const queryClient = useQueryClient();
+  const { data: posts, isFetching } = useFetchPostListQuery({
+    page: Number(searchParams.get("page")),
+    gameMode: searchParams.get("mode") as GameMode,
+    tier: searchParams.get("tier") as Tier,
+    mike: searchParams.get("voice") as Mic,
+    mainP: (searchParams.get("position") as Position) ?? "ANY"
+  });
+
+  useEffect(() => {
+    queryClient.invalidateQueries({
+      queryKey: [POST_QUERYKEYS.PostList]
+    });
+  }, [searchParams, queryClient]);
 
   return (
     <Table className="table-fixed">

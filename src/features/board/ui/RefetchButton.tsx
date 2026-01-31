@@ -6,6 +6,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
 import { cn } from "@/shared/libs/cn";
+import { normalizeSearchParam } from "@/shared/libs/normalizeSearchParam";
 import { Button } from "@/shared/ui/button";
 
 import { POST_QUERYKEYS } from "@/entities/post/constants/post.queryKeys";
@@ -30,7 +31,10 @@ export function RefetchButton() {
         className={cn(rotate && "spin-object")}
         onClick={() => {
           queryClient.invalidateQueries({
-            queryKey: [POST_QUERYKEYS.PostList, { page: Number(searchParams.get("page")) }]
+            queryKey: [
+              POST_QUERYKEYS.PostList,
+              { page: normalizeSearchParam(searchParams.get("page")) }
+            ]
           });
 
           setRotate(true);

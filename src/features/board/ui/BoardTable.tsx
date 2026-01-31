@@ -1,16 +1,15 @@
 "use client";
 
-import { useQueryClient } from "@tanstack/react-query";
 import { EllipsisVertical } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useMemo } from "react";
+import { useMemo } from "react";
 
 import { POSITION_ICONS, TIER_ICONS } from "@/shared/constants";
 import { cn } from "@/shared/libs/cn";
 import { formatTime } from "@/shared/libs/date/formatTime";
-import { Tier, characters, toastMessage } from "@/shared/model";
+import { characters, toastMessage } from "@/shared/model";
 import { Button } from "@/shared/ui/button";
 import {
   DropdownMenu,
@@ -28,31 +27,20 @@ import {
   TableRow
 } from "@/shared/ui/table";
 
-import { POST_QUERYKEYS } from "@/entities/post";
-
-import { GameMode, Mic, Position } from "@/features/board";
-import { useDeletePostMutation, useFetchPostListQuery } from "@/features/post";
+import { BoardList } from "@/features/board/model/types";
+import { useDeletePostMutation } from "@/features/post";
 import { useFetchProfileQuery } from "@/features/profile";
 
-export function BoardTable() {
+type BoardTableProps = {
+  posts: NonNullable<BoardList>["boards"];
+  isFetching: boolean;
+};
+
+export function BoardTable({ posts, isFetching }: BoardTableProps) {
   const { data: userInfo } = useFetchProfileQuery();
   const router = useRouter();
   const searchParams = useSearchParams();
   const deletePost = useDeletePostMutation();
-  const queryClient = useQueryClient();
-  const { data: posts, isFetching } = useFetchPostListQuery({
-    page: Number(searchParams.get("page")),
-    gameMode: searchParams.get("mode") as GameMode,
-    tier: searchParams.get("tier") as Tier,
-    mike: searchParams.get("voice") as Mic,
-    mainP: (searchParams.get("position") as Position) ?? "ANY"
-  });
-
-  useEffect(() => {
-    queryClient.invalidateQueries({
-      queryKey: [POST_QUERYKEYS.PostList]
-    });
-  }, [searchParams, queryClient]);
 
   return (
     <Table className="table-fixed">
@@ -60,7 +48,7 @@ export function BoardTable() {
 
       <TableHeader className="sticky top-0 z-10">
         <TableRow className="bold-14 bg-gray-800 text-white *:text-center">
-          {/* FIX: 내맘대로 나눔 나중에 수정 */}
+          {/* FIX: 아무렇게나 나눔 나중에 수정 */}
           <TableHead className="w-[220px] rounded-l-[8px] text-start!">소환사</TableHead>
           <TableHead className="w-[52px]">매너 레벨</TableHead>
           <TableHead className="w-[64px]">티어</TableHead>
@@ -77,7 +65,7 @@ export function BoardTable() {
 
       <TableBody>
         {posts && !isFetching ? (
-          posts.boards.map((v) => {
+          posts.map((v) => {
             const ProfileIcon = characters[v.profileImage - 1];
             const SoloTierIcon = TIER_ICONS[v.soloTier];
             const MainPositionIcon = POSITION_ICONS[v.mainP];

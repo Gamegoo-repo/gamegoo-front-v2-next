@@ -12,7 +12,6 @@ import { Button } from "@/shared/ui/button";
 
 import { UserInfo } from "@/entities/auth";
 import { POST_QUERYKEYS } from "@/entities/post";
-import { POST_DETAIL_QUERY_KEYS } from "@/entities/post/constants/postDetail.queryKeys";
 
 import {
   BoardData,

@@ -82,7 +82,7 @@ hover:bg-gray-200"
                 {/* 소환사 */}
                 <TableCell>
                   <Link
-                    href={`/board/${v.boardId}?page=${searchParams.get("page")}`}
+                    href={`/board/${v.boardId}?${searchParams.toString()}`}
                     className="absolute! inset-0! z-0!"
                     aria-label="게시물 상세로 이동"
                   />

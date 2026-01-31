@@ -1,12 +1,10 @@
 "use client";
 
-import { useQueryClient } from "@tanstack/react-query";
 import { EllipsisVertical } from "lucide-react";
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useMemo } from "react";
 
-import { clientSideOpenapiClient } from "@/shared/api/clientSideOpenapiClient";
 import { POSITION_ICONS, TIER_ICONS } from "@/shared/constants";
 import { cn } from "@/shared/libs/cn";
 import { formatTime } from "@/shared/libs/date/formatTime";
@@ -28,20 +26,16 @@ import {
   TableRow
 } from "@/shared/ui/table";
 
-import { POST_QUERYKEYS } from "@/entities/post/constants/post.queryKeys";
-
-import { useAuthStore } from "@/features/auth";
-import { useFetchPostListQuery } from "@/features/post/model/hooks/queries/useFetchPostListQuery";
-import { useFetchProfileQuery } from "@/features/profile/model/hooks/queries/useFetchProfileQuery";
+import { useDeletePostMutation, useFetchPostListQuery } from "@/features/post";
+import { useFetchProfileQuery } from "@/features/profile";
 
 import { PostList } from "../../../entities/post/model/types/response/post.response.type";
 
 export function BoardTable({ posts }: { posts: PostList }) {
   const { data: userInfo } = useFetchProfileQuery();
-  const queryClient = useQueryClient();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const accessToken = useAuthStore((s) => s.accessToken);
+  const deletePost = useDeletePostMutation();
   const { isFetching } = useFetchPostListQuery({ page: Number(searchParams.get("page")) });
 
   return (
@@ -74,6 +68,8 @@ export function BoardTable({ posts }: { posts: PostList }) {
             const SubPositionIcon = POSITION_ICONS[v.subP];
             const WantMainPosition = POSITION_ICONS[v.wantP[0]];
             const WantSubPosition = POSITION_ICONS[v.wantP[1]];
+
+            if (v.memberId === userInfo?.id) console.log("!");
 
             return (
               <TableRow
@@ -236,37 +232,30 @@ text-gray-600 *:h-[43px] *:hover:bg-gray-200"
                           align="end"
                           onClick={(e) => e.stopPropagation()}
                         >
-                          <DropdownMenuItem
-                            onClick={() =>
-                              router.push(
-                                `/board/post/${v.boardId}/edit/?page=${searchParams.get("page")}`,
-                                { scroll: false }
-                              )
-                            }
-                          >
-                            {accessToken ? "수정하기" : "신고하기"}
-                          </DropdownMenuItem>
-                          <DropdownMenuItem
-                            className={cn(v.gameName === userInfo?.gameName && "text-red-500")}
-                            onClick={async () => {
-                              await clientSideOpenapiClient.DELETE("/api/v2/posts/{boardId}", {
-                                params: {
-                                  path: {
-                                    boardId: v.boardId
-                                  }
-                                }
-                              });
-
-                              queryClient.invalidateQueries({
-                                queryKey: [
-                                  POST_QUERYKEYS.PostList,
-                                  { page: Number(searchParams.get("page")) }
-                                ]
-                              });
-                            }}
-                          >
-                            {accessToken ? "삭제하기" : "신고하기"}
-                          </DropdownMenuItem>
+                          {v.memberId === userInfo.id ? (
+                            <DropdownMenuItem
+                              onClick={() =>
+                                router.push(
+                                  `/board/post/${v.boardId}/edit/?page=${searchParams.get("page")}`,
+                                  { scroll: false }
+                                )
+                              }
+                            >
+                              수정하기
+                            </DropdownMenuItem>
+                          ) : (
+                            <DropdownMenuItem>신고하기</DropdownMenuItem>
+                          )}
+                          {v.memberId === userInfo.id ? (
+                            <DropdownMenuItem
+                              className="text-red-500"
+                              onClick={() => deletePost.mutate(v.boardId)}
+                            >
+                              삭제하기
+                            </DropdownMenuItem>
+                          ) : (
+                            <DropdownMenuItem>차단하기</DropdownMenuItem>
+                          )}
                         </DropdownMenuContent>
                       </DropdownMenu>
                     )}

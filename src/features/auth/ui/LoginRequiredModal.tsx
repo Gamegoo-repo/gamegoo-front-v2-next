@@ -8,10 +8,10 @@ import { useAuthStore } from "@/features/auth/model/store/auth.store";
 export function LoginRequiredModal({ routeBack }: { routeBack: boolean }) {
   const [isOpen, setIsOpen] = useState(false);
   const router = useRouter();
-  const accessToken = useAuthStore((s) => s.accessToken);
+  const authStatus = useAuthStore((s) => s.authStatus);
 
   useEffect(() => {
-    if (!accessToken) setIsOpen(true);
+    if (authStatus !== "authenticated") setIsOpen(true);
   }, []);
 
   return (

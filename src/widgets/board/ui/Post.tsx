@@ -10,9 +10,11 @@ import { cn } from "@/shared/libs/cn";
 import { toastMessage } from "@/shared/model";
 import { Button } from "@/shared/ui/button";
 
+import { UserInfo } from "@/entities/auth";
 import { POST_DETAIL_QUERY_KEYS } from "@/entities/post/constants/postDetail.queryKeys";
 
 import {
+  BoardData,
   Comment,
   MainAndSubPosition,
   MicSwitch,
@@ -22,12 +24,14 @@ import {
   SelectGameStyle,
   WantPosition
 } from "@/features/board";
-import { usePostDetailQuery } from "@/features/post";
-import { useFetchProfileQuery } from "@/features/profile";
 
-export function Post({ boardId }: { boardId?: string }) {
-  const { data: userInfo } = useFetchProfileQuery();
-  const { data: postData } = usePostDetailQuery(boardId);
+type PostProps = {
+  boardId?: string;
+  postData: BoardData;
+  userInfo: UserInfo;
+};
+
+export function Post({ boardId, postData, userInfo }: PostProps) {
   const router = useRouter();
   const queryClient = useQueryClient();
   const searchParams = useSearchParams();

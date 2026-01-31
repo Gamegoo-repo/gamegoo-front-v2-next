@@ -4,6 +4,8 @@ import { useSearchParams } from "next/navigation";
 
 import { normalizeSearchParam } from "@/shared/libs/normalizeSearchParam";
 
+import { NoPost } from "@/entities/board/ui/NoPost";
+
 import { BoardTable, GameMode, Mic, Pagination, Position, Tier } from "@/features/board";
 import { useFetchPostListQuery } from "@/features/post";
 
@@ -30,10 +32,14 @@ export function Board() {
         posts={data?.boards ?? []}
         isFetching={isFetching}
       />
-      <Pagination
-        totalPages={data?.totalPages ?? 0}
-        currentPage={page}
-      />
+      {data?.boards.length === 0 ? (
+        <NoPost />
+      ) : (
+        <Pagination
+          totalPages={data?.totalPages ?? 0}
+          currentPage={page}
+        />
+      )}
     </div>
   );
 }

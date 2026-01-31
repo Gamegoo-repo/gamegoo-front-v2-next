@@ -12,8 +12,6 @@ type PaginationProps = {
 };
 
 export function Pagination({ totalPages, currentPage }: PaginationProps) {
-  console.log(totalPages);
-
   return (
     <div className="flex items-center gap-[36px]">
       {currentPage > 1 ? (

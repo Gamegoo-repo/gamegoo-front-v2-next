@@ -2,6 +2,7 @@
 
 import { useQueryClient } from "@tanstack/react-query";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 
 import { clientSideOpenapiClient } from "@/shared/api/clientSideOpenapiClient";
@@ -9,11 +10,9 @@ import { cn } from "@/shared/libs/cn";
 import { toastMessage } from "@/shared/model";
 import { Button } from "@/shared/ui/button";
 
-import { POST_QUERYKEYS } from "@/entities/post/constants/post.queryKeys";
+import { POST_DETAIL_QUERY_KEYS } from "@/entities/post/constants/postDetail.queryKeys";
 
-import { useAuthStore } from "@/features/auth";
 import {
-  BoardData,
   Comment,
   MainAndSubPosition,
   MicSwitch,
@@ -23,18 +22,14 @@ import {
   SelectGameStyle,
   WantPosition
 } from "@/features/board";
-import { useFetchProfileQuery } from "@/features/profile/model/hooks/queries/useFetchProfileQuery";
+import { usePostDetailQuery } from "@/features/post";
+import { useFetchProfileQuery } from "@/features/profile";
 
-type PostProps = {
-  postData?: BoardData;
-  boardId?: string;
-};
-
-export function Post({ postData, boardId }: PostProps) {
+export function Post({ boardId }: { boardId?: string }) {
   const { data: userInfo } = useFetchProfileQuery();
+  const { data: postData } = usePostDetailQuery(boardId);
   const router = useRouter();
   const queryClient = useQueryClient();
-  const accessToken = useAuthStore((s) => s.accessToken);
   const searchParams = useSearchParams();
 
   const methods = useForm<PostForm>({
@@ -53,8 +48,25 @@ export function Post({ postData, boardId }: PostProps) {
 
   const {
     handleSubmit,
-    formState: { isValid }
+    formState: { isValid },
+    reset
   } = methods;
+
+  // postData가 있으면 form 업데이트
+  useEffect(() => {
+    if (postData) {
+      reset({
+        mainPosition: postData.mainP,
+        subPosition: postData.subP,
+        wantMainPosition: postData.wantP[0],
+        wantSubPosition: postData.wantP[1],
+        gameMode: postData.gameMode,
+        gameStyles: postData.gameStyles,
+        mic: postData.mike,
+        comment: postData.contents
+      });
+    }
+  }, [postData, reset]);
 
   const handleOnSubmit = async (data: PostForm) => {
     const body = {
@@ -67,6 +79,7 @@ export function Post({ postData, boardId }: PostProps) {
       contents: data.comment
     };
 
+    // -> 글을 수정할 때
     if (postData) {
       const { error } = await clientSideOpenapiClient.PUT("/api/v2/posts/{boardId}", {
         params: {
@@ -77,19 +90,34 @@ export function Post({ postData, boardId }: PostProps) {
         body
       });
 
-      if (error) throw new Error("에러남 포스트 수정에서");
+      if (error) {
+        toastMessage.error("포스트 수정에 실패했습니다.");
+        throw new Error("포스트 수정 페이지에서 에러가 발생했습니다.");
+      }
 
+      // 글 수정이 되었을 때
+      toastMessage.success("게시물이 수정되었습니다.");
+
+      // 상세 글 캐싱 무효화
+      queryClient.invalidateQueries({
+        queryKey: POST_DETAIL_QUERY_KEYS.detail(boardId!)
+      });
+
+      // 글 목록 페이지로 돌아가기
+      router.replace(`/board/?page=${searchParams.get("page")}`);
       return;
     }
 
-    const { error } = await clientSideOpenapiClient.POST("/api/v2/posts", {
-      headers: {
-        Authorization: `Bearer ${accessToken}`
-      },
-      body
-    });
+    // -> 글을 작성할 때
+    const { error } = await clientSideOpenapiClient.POST("/api/v2/posts", { body });
 
-    if (error) toastMessage.error("이미 글이 있다!!");
+    if (error) {
+      toastMessage.error("이미 글이 존재합니다.");
+      return;
+    }
+
+    toastMessage.success("게시물이 작성되었습니다.");
+    router.replace(`/board/?page=${searchParams.get("page")}`);
   };
 
   if (!userInfo) return null;
@@ -158,18 +186,6 @@ export function Post({ postData, boardId }: PostProps) {
               className={cn("h-[58px] w-full bg-violet-400 text-white", isValid && "bg-violet-600")}
               type="submit"
               disabled={!isValid}
-              onClick={() => {
-                if (postData) {
-                  toastMessage.success("게시물이 수정되었습니다.");
-                } else {
-                  toastMessage.success("게시물이 작성되었습니다.");
-                }
-
-                queryClient.invalidateQueries({
-                  queryKey: [POST_QUERYKEYS.PostList, { page: 1 }]
-                });
-                router.replace(`/board/?page=${searchParams.get("page")}`);
-              }}
             >
               작성 완료
             </Button>

@@ -2,6 +2,7 @@
 
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 
 import { cn } from "@/shared/libs/cn";
 import { Button } from "@/shared/ui/button";
@@ -12,10 +13,18 @@ type PaginationProps = {
 };
 
 export function Pagination({ totalPages, currentPage }: PaginationProps) {
+  const searchParams = useSearchParams();
+
+  const setParams = (page: number) => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("page", page.toString());
+    return `?${params.toString()}`;
+  };
+
   return (
     <div className="flex items-center gap-[36px]">
       {currentPage > 1 ? (
-        <Link href={{ query: { page: currentPage - 1 } }}>
+        <Link href={setParams(currentPage - 1)}>
           <ChevronLeft />
         </Link>
       ) : (
@@ -32,7 +41,7 @@ export function Pagination({ totalPages, currentPage }: PaginationProps) {
                 onClick={() => window.scrollTo({ top: 0 })}
               >
                 <Link
-                  href={{ query: { page: i + 1 } }}
+                  href={setParams(i + 1)}
                   className={cn(
                     "text-[14px] hover:bg-gray-200",
                     currentPage === i + 1 &&
@@ -48,7 +57,7 @@ export function Pagination({ totalPages, currentPage }: PaginationProps) {
       </ol>
 
       {currentPage !== totalPages ? (
-        <Link href={{ query: { page: currentPage + 1 } }}>
+        <Link href={setParams(currentPage + 1)}>
           <ChevronRight />
         </Link>
       ) : (

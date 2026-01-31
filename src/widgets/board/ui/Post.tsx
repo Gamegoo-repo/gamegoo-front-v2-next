@@ -11,6 +11,7 @@ import { toastMessage } from "@/shared/model";
 import { Button } from "@/shared/ui/button";
 
 import { UserInfo } from "@/entities/auth";
+import { POST_QUERYKEYS } from "@/entities/post";
 import { POST_DETAIL_QUERY_KEYS } from "@/entities/post/constants/postDetail.queryKeys";
 
 import {
@@ -122,6 +123,10 @@ export function Post({ boardId, postData, userInfo }: PostProps) {
 
     toastMessage.success("게시물이 작성되었습니다.");
     router.replace(`/board/?page=${searchParams.get("page")}`);
+
+    queryClient.invalidateQueries({
+      queryKey: [POST_QUERYKEYS.PostList]
+    });
   };
 
   if (!userInfo) return null;

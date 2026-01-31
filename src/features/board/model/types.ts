@@ -2,6 +2,8 @@ import { paths } from "@/shared/api/schema";
 
 export type BoardData =
   paths["/api/v2/posts/list/{boardId}"]["get"]["responses"]["200"]["content"]["*/*"]["data"];
+export type BoardList =
+  paths["/api/v2/posts/list"]["get"]["responses"]["200"]["content"]["*/*"]["data"];
 
 export type MainPosition = NonNullable<BoardData>["mainP"] | undefined;
 export type SubPosition = NonNullable<BoardData>["subP"] | undefined;

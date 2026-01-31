@@ -1,5 +1,5 @@
-import { Post } from "@/widgets/board";
+import { PostContainer } from "@/widgets/board";
 
 export default function page() {
-  return <Post />;
+  return <PostContainer />;
 }

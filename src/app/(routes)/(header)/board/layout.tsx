@@ -1,9 +1,9 @@
-import { Board, Header } from "@/widgets/board";
+import { Board, HeaderContainer } from "@/widgets/board";
 
 export default function BoardLayout({ children }: { children: React.ReactNode }) {
   return (
     <>
-      <Header />
+      <HeaderContainer />
       <Board />
 
       {children}

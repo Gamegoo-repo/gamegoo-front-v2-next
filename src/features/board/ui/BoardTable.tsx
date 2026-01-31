@@ -216,14 +216,14 @@ whitespace-normal"
                 </TableCell>
 
                 {/* 등록일시 */}
-                <TableCell className="relative z-10">
+                <TableCell>
                   <div className="flex items-center justify-between gap-[6px] text-gray-500">
                     <p className="flex w-full justify-center">{formatTime(v.createdAt)}</p>
 
                     {userInfo && (
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                          <Button className="size-[24px]">
+                          <Button className="relative z-10 size-[24px]">
                             <EllipsisVertical className="size-[20px]" />
                           </Button>
                         </DropdownMenuTrigger>

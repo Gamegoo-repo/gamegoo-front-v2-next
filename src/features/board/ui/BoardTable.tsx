@@ -99,8 +99,8 @@ bg-violet-200 p-1"
                       <div className="flex items-center gap-2">
                         <p className="regular-13 text-gray-600">#{v.tag}</p>
                         <Button
-                          className="hidden h-[18px]! w-fit border border-gray-400 bg-gray-200 px-1
-text-xs group-hover:flex"
+                          className="relative z-10 hidden h-[18px]! w-fit border border-gray-400
+bg-gray-200 px-1 text-xs group-hover:flex"
                           onClick={() => {
                             navigator.clipboard.writeText(`${v.gameName}#${v.tag}`);
                             toastMessage.success("소환사명이 복사되었습니다.");

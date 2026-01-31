@@ -13,7 +13,7 @@ export function CtaSection() {
       </section>
       <section className="flex h-80 flex-1 bg-neutral-700 text-2xl">
         <Link
-          href="/board"
+          href={{ pathname: "/board", query: { page: 1 } }}
           className="flex h-full w-full items-center justify-center"
         >
           게시판에서 찾기

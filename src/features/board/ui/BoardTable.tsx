@@ -3,6 +3,7 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { EllipsisVertical } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useMemo } from "react";
 
@@ -89,13 +90,17 @@ export function BoardTable() {
             return (
               <TableRow
                 key={`${v.boardId}-${v.memberId.toString()}`}
-                className="group *:border-b *:border-b-gray-300 *:py-[19px] hover:bg-gray-200"
-                onClick={() => {
-                  router.push(`/board/${v.boardId}?page=${searchParams.get("page")}`);
-                }}
+                className="group relative *:border-b *:border-b-gray-300 *:py-[19px]
+hover:bg-gray-200"
               >
                 {/* 소환사 */}
                 <TableCell>
+                  <Link
+                    href={`/board/${v.boardId}?page=${searchParams.get("page")}`}
+                    className="absolute! inset-0! z-0!"
+                    aria-label="게시물 상세로 이동"
+                  />
+
                   <div className="flex gap-[8px]">
                     <div
                       className="flex size-[40px] items-center justify-center rounded-full
@@ -110,8 +115,7 @@ bg-violet-200 p-1"
                         <Button
                           className="hidden h-[18px]! w-fit border border-gray-400 bg-gray-200 px-1
 text-xs group-hover:flex"
-                          onClick={(e) => {
-                            e.stopPropagation();
+                          onClick={() => {
                             navigator.clipboard.writeText(`${v.gameName}#${v.tag}`);
                             toastMessage.success("소환사명이 복사되었습니다.");
                           }}
@@ -226,17 +230,14 @@ whitespace-normal"
                 </TableCell>
 
                 {/* 등록일시 */}
-                <TableCell>
+                <TableCell className="relative z-10">
                   <div className="flex items-center justify-between gap-[6px] text-gray-500">
                     <p className="flex w-full justify-center">{formatTime(v.createdAt)}</p>
 
                     {userInfo && (
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                          <Button
-                            className="size-[24px]"
-                            onClick={(e) => e.stopPropagation()}
-                          >
+                          <Button className="size-[24px]">
                             <EllipsisVertical className="size-[20px]" />
                           </Button>
                         </DropdownMenuTrigger>
@@ -245,7 +246,6 @@ whitespace-normal"
                           className="medium-14 w-[175px] rounded-[10px] border-none bg-white p-0
 text-gray-600 *:h-[43px] *:hover:bg-gray-200"
                           align="end"
-                          onClick={(e) => e.stopPropagation()}
                         >
                           {v.memberId === userInfo.id ? (
                             <DropdownMenuItem

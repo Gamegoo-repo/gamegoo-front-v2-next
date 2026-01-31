@@ -73,8 +73,6 @@ export function BoardTable({ posts, isFetching }: BoardTableProps) {
             const WantMainPosition = POSITION_ICONS[v.wantP[0]];
             const WantSubPosition = POSITION_ICONS[v.wantP[1]];
 
-            if (v.memberId === userInfo?.id) console.log("!");
-
             return (
               <TableRow
                 key={`${v.boardId}-${v.memberId.toString()}`}

@@ -100,12 +100,12 @@ export function Post({ boardId, postData, userInfo }: PostProps) {
         throw new Error("포스트 수정 페이지에서 에러가 발생했습니다.");
       }
 
-      // 글 수정이 되었을 때
+      // 글이 수정되었을 때
       toastMessage.success("게시물이 수정되었습니다.");
 
       // 상세 글 캐싱 무효화
       queryClient.invalidateQueries({
-        queryKey: POST_DETAIL_QUERY_KEYS.detail(boardId!)
+        queryKey: [POST_QUERYKEYS.PostList]
       });
 
       // 글 목록 페이지로 돌아가기

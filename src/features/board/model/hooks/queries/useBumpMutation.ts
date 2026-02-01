@@ -22,7 +22,7 @@ export const useBumpMutation = ({ loginRequired }: { loginRequired: () => void }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: [POST_QUERYKEYS.PostList]
+        queryKey: POST_QUERYKEYS.PostList
       });
 
       toastMessage.success("ㅇㅋ");

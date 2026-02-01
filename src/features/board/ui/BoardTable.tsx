@@ -27,20 +27,23 @@ import {
   TableRow
 } from "@/shared/ui/table";
 
+import { UserInfo } from "@/entities/auth";
+
 import { BoardList } from "@/features/board/model/types";
-import { useDeletePostMutation } from "@/features/post";
-import { useFetchProfileQuery } from "@/features/profile";
+import { useBlockUserMutation, useDeletePostMutation } from "@/features/post";
 
 type BoardTableProps = {
   posts: NonNullable<BoardList>["boards"];
-  isFetching: boolean;
+  isLoading: boolean;
+  userInfo: UserInfo;
 };
 
-export function BoardTable({ posts, isFetching }: BoardTableProps) {
-  const { data: userInfo } = useFetchProfileQuery();
+export function BoardTable({ posts, isLoading, userInfo }: BoardTableProps) {
+  // const { data: userInfo } = useFetchProfileQuery();
   const router = useRouter();
   const searchParams = useSearchParams();
   const deletePost = useDeletePostMutation();
+  const blockUser = useBlockUserMutation();
 
   return (
     <Table className="table-fixed">
@@ -64,7 +67,7 @@ export function BoardTable({ posts, isFetching }: BoardTableProps) {
       </TableHeader>
 
       <TableBody>
-        {posts && !isFetching ? (
+        {posts && !isLoading ? (
           posts.map((v) => {
             const ProfileIcon = characters[v.profileImage - 1];
             const SoloTierIcon = TIER_ICONS[v.soloTier];
@@ -255,7 +258,25 @@ text-gray-600 *:h-[43px] *:hover:bg-gray-200"
                               삭제하기
                             </DropdownMenuItem>
                           ) : (
-                            <DropdownMenuItem>차단하기</DropdownMenuItem>
+                            <>
+                              {v.isBlocked ? (
+                                <DropdownMenuItem
+                                  onClick={() =>
+                                    blockUser.mutate({ memberId: v.memberId, type: "unblock" })
+                                  }
+                                >
+                                  차단 해제
+                                </DropdownMenuItem>
+                              ) : (
+                                <DropdownMenuItem
+                                  onClick={() =>
+                                    blockUser.mutate({ memberId: v.memberId, type: "block" })
+                                  }
+                                >
+                                  차단하기
+                                </DropdownMenuItem>
+                              )}
+                            </>
                           )}
                         </DropdownMenuContent>
                       </DropdownMenu>

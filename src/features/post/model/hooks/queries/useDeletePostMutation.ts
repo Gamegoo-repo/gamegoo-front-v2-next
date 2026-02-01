@@ -20,7 +20,7 @@ export const useDeletePostMutation = () => {
 
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: [POST_QUERYKEYS.PostList]
+        queryKey: POST_QUERYKEYS.PostList
       });
     }
   });

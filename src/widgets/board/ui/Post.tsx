@@ -104,7 +104,7 @@ export function Post({ boardId, postData, userInfo }: PostProps) {
 
       // 상세 글 캐싱 무효화
       queryClient.invalidateQueries({
-        queryKey: [POST_QUERYKEYS.PostList]
+        queryKey: POST_QUERYKEYS.PostList
       });
 
       // 글 목록 페이지로 돌아가기
@@ -124,7 +124,7 @@ export function Post({ boardId, postData, userInfo }: PostProps) {
     router.replace(`/board/?page=${searchParams.get("page")}`);
 
     queryClient.invalidateQueries({
-      queryKey: [POST_QUERYKEYS.PostList]
+      queryKey: POST_QUERYKEYS.PostList
     });
   };
 

@@ -25,7 +25,7 @@ export const useBumpMutation = ({ loginRequired }: { loginRequired: () => void }
         queryKey: POST_QUERYKEYS.PostList
       });
 
-      toastMessage.success("ㅇㅋ");
+      toastMessage.success("게시글을 끌어올렸습니다.");
     },
     onError: (err: Error) => {
       if (err.message === "LOGIN_REQUIRED") {
@@ -33,7 +33,7 @@ export const useBumpMutation = ({ loginRequired }: { loginRequired: () => void }
         return;
       }
 
-      toastMessage.error("기다려");
+      toastMessage.error("작성한 글이 없습니다.");
     }
   });
 };

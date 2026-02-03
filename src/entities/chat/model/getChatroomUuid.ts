@@ -9,9 +9,9 @@ export const getChatroomUuid = async () => {
     credentials: "include"
   });
 
-  // const accessToken = await res.json();
-  const accessToken =
-    "eyJhbGciOiJIUzI1NiJ9.eyJtZW1iZXJJZCI6MjcwLCJyb2xlIjoiTUVNQkVSIiwiaWF0IjoxNzcwMTAyMDI2LCJleHAiOjE3NzAxMDI2MjZ9.qLHjOx0zdDxGHQ8aj_0xpyDMD_69_gw2Kl0LxEhLExE";
+  if (!res.ok) return;
+
+  const accessToken = await res.json();
 
   const { data, error } = await serverSideOpenapiClient.GET("/api/v2/chatroom", {
     headers: {

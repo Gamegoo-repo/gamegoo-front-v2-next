@@ -38,7 +38,13 @@ export function Board() {
   return (
     <div className="flex flex-col items-center gap-[64px]">
       <BoardTable
-        posts={data?.boards ?? []}
+        posts={
+          data?.boards.sort((a, b) => {
+            if (a.createdAt > b.createdAt) return -1;
+            if (a.createdAt < b.createdAt) return 1;
+            return 0;
+          }) ?? []
+        }
         isLoading={isLoading}
         userInfo={userInfo}
       />

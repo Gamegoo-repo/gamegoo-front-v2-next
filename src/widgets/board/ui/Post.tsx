@@ -1,17 +1,12 @@
 "use client";
 
-import { useQueryClient } from "@tanstack/react-query";
-import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 
-import { clientSideOpenapiClient } from "@/shared/api/clientSideOpenapiClient";
 import { cn } from "@/shared/libs/cn";
-import { toastMessage } from "@/shared/model";
 import { Button } from "@/shared/ui/button";
 
 import { UserInfo } from "@/entities/auth";
-import { POST_QUERYKEYS } from "@/entities/post";
 
 import {
   BoardData,
@@ -24,6 +19,8 @@ import {
   SelectGameStyle,
   WantPosition
 } from "@/features/board";
+import { useEditPostMutation } from "@/features/post/model/hooks/queries/useEditPostMutation";
+import { usePostMutation } from "@/features/post/model/hooks/queries/usePostMutation";
 
 type PostProps = {
   boardId?: string;
@@ -32,9 +29,8 @@ type PostProps = {
 };
 
 export function Post({ boardId, postData, userInfo }: PostProps) {
-  const router = useRouter();
-  const queryClient = useQueryClient();
-  const searchParams = useSearchParams();
+  const editPost = useEditPostMutation();
+  const post = usePostMutation();
 
   const methods = useForm<PostForm>({
     mode: "onChange",
@@ -85,47 +81,12 @@ export function Post({ boardId, postData, userInfo }: PostProps) {
 
     // -> 글을 수정할 때
     if (postData) {
-      const { error } = await clientSideOpenapiClient.PUT("/api/v2/posts/{boardId}", {
-        params: {
-          path: {
-            boardId: Number(boardId)
-          }
-        },
-        body
-      });
-
-      if (error) {
-        toastMessage.error("포스트 수정에 실패했습니다.");
-        throw new Error("포스트 수정 페이지에서 에러가 발생했습니다.");
-      }
-
-      // 글이 수정되었을 때
-      toastMessage.success("게시물이 수정되었습니다.");
-
-      // 상세 글 캐싱 무효화
-      queryClient.invalidateQueries({
-        queryKey: POST_QUERYKEYS.PostList
-      });
-
-      // 글 목록 페이지로 돌아가기
-      router.replace(`/board/?page=${searchParams.get("page")}`);
+      editPost.mutate({ body, boardId: Number(boardId!) });
       return;
     }
 
     // -> 글을 작성할 때
-    const { error } = await clientSideOpenapiClient.POST("/api/v2/posts", { body });
-
-    if (error) {
-      toastMessage.error("이미 글이 존재합니다.");
-      return;
-    }
-
-    toastMessage.success("게시물이 작성되었습니다.");
-    router.replace(`/board/?page=${searchParams.get("page")}`);
-
-    queryClient.invalidateQueries({
-      queryKey: POST_QUERYKEYS.PostList
-    });
+    post.mutate({ body });
   };
 
   if (!userInfo) return null;

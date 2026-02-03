@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 import { clientSideOpenapiClient } from "@/shared/api/clientSideOpenapiClient";
+import { toastMessage } from "@/shared/model";
 
 import { POST_QUERYKEYS } from "@/entities/post/constants/post.queryKeys";
 
@@ -22,6 +23,7 @@ export const useDeletePostMutation = () => {
       queryClient.invalidateQueries({
         queryKey: POST_QUERYKEYS.PostList
       });
+      toastMessage.success("게시글이 삭제되었습니다.");
     }
   });
 };

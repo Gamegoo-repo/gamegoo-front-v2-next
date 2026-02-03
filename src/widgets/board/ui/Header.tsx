@@ -3,12 +3,12 @@ import { DropdownType1RequiredQueryString } from "@/shared/ui/dropdown";
 
 import { Bump, PositionSelectButton, Post, RefetchButton } from "@/features/board";
 
-export function Header() {
+export function Header({ refetch }: { refetch: () => void }) {
   return (
     <div className="mt-20">
       <div className="flex justify-between">
         <h2 className="bold-32">게시판</h2>
-        <RefetchButton />
+        <RefetchButton refetch={refetch} />
       </div>
 
       <div className="flex items-center justify-between">

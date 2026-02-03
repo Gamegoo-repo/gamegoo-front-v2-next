@@ -1,4 +1,6 @@
-import { POSITION_ICONS, TIER_ICONS } from "@/shared/constants";
+"use client";
+
+import { getPositionIcon, getTierIcon } from "@/shared/model/getIcon";
 
 import {
   Comments,
@@ -8,48 +10,46 @@ import {
   Rank,
   RecentPreferredChampions,
   WantPosition,
-  WinRate
+  WinRate,
+  createdAtFormat
 } from "@/entities/board";
 
 import { BoardData, ModalContainer } from "@/features/board";
+import { usePostDetailQuery } from "@/features/post/model/hooks/queries/usePostDetailQuery";
 
-// FIX: generateMetadata 적용
+type BoardDetailModalProps = {
+  boardId: string;
+  boardData: BoardData;
+};
 
-export async function BoardId({ boardData }: { boardData: BoardData }) {
-  if (!boardData) return null;
+export function BoardDetailModal({ boardId, boardData }: BoardDetailModalProps) {
+  const { data } = usePostDetailQuery(boardId, boardData);
 
-  const SoloTierIcon = TIER_ICONS[boardData.soloTier as keyof typeof TIER_ICONS];
-  const FreeTierIcon = TIER_ICONS[boardData.freeTier as keyof typeof TIER_ICONS];
-  const MainPositionIcon = POSITION_ICONS[boardData.mainP as keyof typeof POSITION_ICONS];
-  const SubPositionIcon = POSITION_ICONS[boardData.subP as keyof typeof POSITION_ICONS];
-  const FirstWantPositionIcon = POSITION_ICONS[boardData.wantP[0] as keyof typeof POSITION_ICONS];
-  const SecondWantPositionIcon = POSITION_ICONS[boardData.wantP[1] as keyof typeof POSITION_ICONS];
+  if (!boardData || !data) return null;
 
-  const d = new Date(boardData.createdAt);
-  const result =
-    [
-      String(d.getFullYear()).slice(2),
-      String(d.getMonth() + 1).padStart(2, "0"),
-      String(d.getDate()).padStart(2, "0")
-    ].join(".") +
-    ` ${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
+  const SoloTierIcon = getTierIcon(data.soloTier);
+  const FreeTierIcon = getTierIcon(data.freeTier);
+  const MainPositionIcon = getPositionIcon(data.mainP);
+  const SubPositionIcon = getPositionIcon(data.subP);
+  const FirstWantPositionIcon = getPositionIcon(data.wantP[0]);
+  const SecondWantPositionIcon = getPositionIcon(data.wantP[1]);
 
   return (
-    <ModalContainer userInfo={boardData}>
+    <ModalContainer userInfo={data}>
       <div className="mt-[30px] space-y-[6px]">
         <main className="space-y-[30px]">
           {/* 랭크 */}
           <div className="flex items-center gap-32">
             <Rank
               Icon={SoloTierIcon}
-              tier={boardData.soloTier}
-              rank={boardData.soloRank}
+              tier={data.soloTier}
+              rank={data.soloRank}
               gameType="솔로랭크"
             />
             <Rank
               Icon={FreeTierIcon}
-              tier={boardData.freeTier}
-              rank={boardData.freeRank}
+              tier={data.freeTier}
+              rank={data.freeRank}
               gameType="자유랭크"
             />
           </div>
@@ -74,38 +74,40 @@ export async function BoardId({ boardData }: { boardData: BoardData }) {
           <div className="flex gap-[8px] *:w-1/2">
             <div className="space-y-[6px]">
               <h2 className="semibold-14">선호 게임모드</h2>
-              <PreferredGameMode gameMode={boardData.gameMode} />
+              <PreferredGameMode gameMode={data.gameMode} />
             </div>
 
             <div className="space-y-[6px]">
               <h2 className="semibold-14 flex justify-between">최근 선호 챔피언</h2>
               <RecentPreferredChampions
-                championStatsResponseList={boardData.championStatsResponseList}
+                championStatsResponseList={data.championStatsResponseList}
               />
             </div>
           </div>
 
           {/* 승률 */}
           <div className="space-y-[6px]">
-            <h2 className="semibold-14">승률 {boardData.winRate}%</h2>
-            <WinRate winRate={boardData.winRate ?? 0} />
+            <h2 className="semibold-14">승률 {data.winRate}%</h2>
+            <WinRate winRate={data.winRate ?? 0} />
           </div>
 
           {/* 게임 스타일 */}
           <div className="space-y-[6px]">
             <h2 className="semibold-14">게임 스타일</h2>
-            <GameStyle gameStyles={boardData.gameStyles} />
+            <GameStyle gameStyles={data.gameStyles} />
           </div>
 
           {/* 한마디 */}
           <div className="space-y-[6px]">
             <h2 className="semibold-14">한마디</h2>
-            <Comments comments={boardData.contents ?? ""} />
+            <Comments comments={data.contents ?? ""} />
           </div>
         </main>
 
         {/* 게시일 */}
-        <p className="medium-11 text-right text-gray-500">게시일: {result}</p>
+        <p className="medium-11 text-right text-gray-500">
+          게시일: {createdAtFormat(data.createdAt)}
+        </p>
       </div>
     </ModalContainer>
   );

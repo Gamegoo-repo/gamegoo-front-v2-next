@@ -23,7 +23,7 @@ export const useBlockUserMutation = () => {
         return;
       }
 
-      const { error } = await clientSideOpenapiClient.DELETE("/api/v2/block/delete/{memberId}", {
+      const { error } = await clientSideOpenapiClient.DELETE("/api/v2/block/{memberId}", {
         params: {
           path: {
             memberId

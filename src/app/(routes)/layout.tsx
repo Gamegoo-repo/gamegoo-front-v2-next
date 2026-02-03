@@ -3,6 +3,8 @@ import { Toaster } from "sonner";
 
 import "@/shared/styles/globals.css";
 
+import { getChatroomUuid } from "@/entities/chat/model/getChatroomUuid";
+
 import InitAuthProvider from "@/app/providers/init-auth";
 import { ReactQueryProvider } from "@/app/providers/react-query";
 
@@ -13,11 +15,13 @@ export const metadata: Metadata = {
   }
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  await getChatroomUuid();
+
   return (
     <ReactQueryProvider>
       <InitAuthProvider>

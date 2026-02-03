@@ -1,6 +1,6 @@
 "use client";
 
-import { EllipsisVertical } from "lucide-react";
+import { EllipsisVertical, X } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -21,6 +21,15 @@ import {
   AlertDialogTitle
 } from "@/shared/ui/alert-dialog";
 import { Button } from "@/shared/ui/button";
+import { Checkbox } from "@/shared/ui/checkbox";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle
+} from "@/shared/ui/dialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -41,6 +50,7 @@ import { UserInfo } from "@/entities/auth";
 
 import { BoardList } from "@/features/board";
 import { useBlockUserMutation, useDeletePostMutation } from "@/features/post";
+import { useReportMutation } from "@/features/post/model/hooks/queries/useReportMutation";
 
 type BoardTableProps = {
   posts: NonNullable<BoardList>["boards"];
@@ -99,10 +109,14 @@ type BoardRowProps = {
 function BoardRow({ v, userInfo }: BoardRowProps) {
   const [isBlockOpen, setIsBlockOpen] = useState(false);
   const [isUnblockOpen, setIsUnblockOpen] = useState(false);
+  const [isReportOpen, setIsReportOpen] = useState(false);
+  const [reportCodeList, setReportCodeList] = useState<number[]>([]);
+  const [reportContent, setReportContent] = useState("");
   const router = useRouter();
   const searchParams = useSearchParams();
   const deletePost = useDeletePostMutation();
   const blockUser = useBlockUserMutation();
+  const report = useReportMutation();
 
   const ProfileIcon = characters[v.profileImage - 1];
   const SoloTierIcon = TIER_ICONS[v.soloTier];
@@ -277,7 +291,9 @@ text-gray-600 *:h-[43px] *:hover:bg-gray-200"
                       수정하기
                     </DropdownMenuItem>
                   ) : (
-                    <DropdownMenuItem>신고하기</DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setIsReportOpen(true)}>
+                      신고하기
+                    </DropdownMenuItem>
                   )}
                   {v.memberId === userInfo.id ? (
                     <DropdownMenuItem
@@ -383,6 +399,102 @@ text-gray-600 *:h-[43px] *:hover:bg-gray-200"
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* 신고 */}
+      <Dialog
+        open={isReportOpen}
+        onOpenChange={setIsReportOpen}
+      >
+        <DialogContent
+          className="max-h-[90vh] overflow-y-scroll bg-white"
+          showCloseButton={false}
+        >
+          <DialogHeader>
+            <div className="flex items-center justify-between">
+              <DialogTitle className="bold-20">유저 신고하기</DialogTitle>
+              <DialogClose asChild>
+                <Button>
+                  <X />
+                </Button>
+              </DialogClose>
+            </div>
+            <DialogDescription className="sr-only">유저 신고</DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-8">
+            <div className="space-y-3">
+              <p className="semibold-18">신고 사유</p>
+              <ul className="space-y-[21px]">
+                {[
+                  "스팸 홍보 / 도배글",
+                  "불법 정보 포함",
+                  "성희롱 발언",
+                  "욕설 / 혐오 / 차별적 표현",
+                  "개인 정보 노출",
+                  "불쾌한 표현"
+                ].map((v, i) => {
+                  return (
+                    <li
+                      key={v}
+                      className="flex cursor-pointer items-center gap-2 *:cursor-pointer"
+                    >
+                      <Checkbox
+                        id={v}
+                        className="size-[21px] rounded-md data-[state=checked]:bg-violet-600
+data-[state=checked]:text-white"
+                        onCheckedChange={(isSelected: boolean) => {
+                          setReportCodeList((prev: number[]) =>
+                            isSelected ? [...prev, i] : prev.filter((item) => item !== i)
+                          );
+                        }}
+                        checked={reportCodeList.includes(i)}
+                      />
+                      <label
+                        className="regular-18"
+                        htmlFor={v}
+                      >
+                        {v}
+                      </label>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+
+            <div className="space-y-3">
+              <p className="semibold-18">상세 내용</p>
+              <div>
+                <textarea
+                  className="h-34 w-full resize-none rounded-[8px] border border-[#C5C5C7] p-2
+outline-none focus:border-violet-600 focus:ring-1 focus:ring-violet-600"
+                  onChange={(e) => setReportContent(e.target.value)}
+                  placeholder="내용을 입력하세요. (선택)"
+                />
+              </div>
+            </div>
+
+            <DialogClose asChild>
+              <Button
+                className="bold-14 h-[58px] w-full rounded-[15px] bg-violet-600 text-white"
+                disabled={reportCodeList.length === 0}
+                onClick={() => {
+                  report.mutate({
+                    memberId: v.memberId,
+                    reportCodeList,
+                    pathCode: 1,
+                    contents: reportContent,
+                    boardId: v.boardId
+                  });
+
+                  setReportCodeList([]);
+                }}
+              >
+                신고하기
+              </Button>
+            </DialogClose>
+          </div>
+        </DialogContent>
+      </Dialog>
     </>
   );
 }

@@ -14,6 +14,7 @@ export { Pagination } from "./ui/Pagination";
 
 export type {
   BoardData,
+  BoardList,
   MainPosition,
   SubPosition,
   GameMode,

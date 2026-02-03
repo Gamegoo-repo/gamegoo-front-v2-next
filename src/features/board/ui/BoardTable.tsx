@@ -2,6 +2,7 @@
 
 import { EllipsisVertical } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useMemo } from "react";
 
@@ -26,17 +27,23 @@ import {
   TableRow
 } from "@/shared/ui/table";
 
-import { useDeletePostMutation, useFetchPostListQuery } from "@/features/post";
-import { useFetchProfileQuery } from "@/features/profile";
+import { UserInfo } from "@/entities/auth";
 
-import { PostList } from "../../../entities/post/model/types/response/post.response.type";
+import { BoardList } from "@/features/board/model/types";
+import { useBlockUserMutation, useDeletePostMutation } from "@/features/post";
 
-export function BoardTable({ posts }: { posts: PostList }) {
-  const { data: userInfo } = useFetchProfileQuery();
+type BoardTableProps = {
+  posts: NonNullable<BoardList>["boards"];
+  isLoading: boolean;
+  userInfo: UserInfo;
+};
+
+export function BoardTable({ posts, isLoading, userInfo }: BoardTableProps) {
+  // const { data: userInfo } = useFetchProfileQuery();
   const router = useRouter();
   const searchParams = useSearchParams();
   const deletePost = useDeletePostMutation();
-  const { isFetching } = useFetchPostListQuery({ page: Number(searchParams.get("page")) });
+  const blockUser = useBlockUserMutation();
 
   return (
     <Table className="table-fixed">
@@ -44,7 +51,7 @@ export function BoardTable({ posts }: { posts: PostList }) {
 
       <TableHeader className="sticky top-0 z-10">
         <TableRow className="bold-14 bg-gray-800 text-white *:text-center">
-          {/* FIX: 내맘대로 나눔 나중에 수정 */}
+          {/* FIX: 아무렇게나 나눔 나중에 수정 */}
           <TableHead className="w-[220px] rounded-l-[8px] text-start!">소환사</TableHead>
           <TableHead className="w-[52px]">매너 레벨</TableHead>
           <TableHead className="w-[64px]">티어</TableHead>
@@ -60,8 +67,8 @@ export function BoardTable({ posts }: { posts: PostList }) {
       </TableHeader>
 
       <TableBody>
-        {posts && !isFetching ? (
-          posts.boards.map((v) => {
+        {posts && !isLoading ? (
+          posts.map((v) => {
             const ProfileIcon = characters[v.profileImage - 1];
             const SoloTierIcon = TIER_ICONS[v.soloTier];
             const MainPositionIcon = POSITION_ICONS[v.mainP];
@@ -69,18 +76,20 @@ export function BoardTable({ posts }: { posts: PostList }) {
             const WantMainPosition = POSITION_ICONS[v.wantP[0]];
             const WantSubPosition = POSITION_ICONS[v.wantP[1]];
 
-            if (v.memberId === userInfo?.id) console.log("!");
-
             return (
               <TableRow
                 key={`${v.boardId}-${v.memberId.toString()}`}
-                className="group *:border-b *:border-b-gray-300 *:py-[19px] hover:bg-gray-200"
-                onClick={() => {
-                  router.push(`/board/${v.boardId}?page=${searchParams.get("page")}`);
-                }}
+                className="group relative *:border-b *:border-b-gray-300 *:py-[19px]
+hover:bg-gray-200"
               >
                 {/* 소환사 */}
                 <TableCell>
+                  <Link
+                    href={`/board/${v.boardId}?${searchParams.toString()}`}
+                    className="absolute! inset-0! z-0!"
+                    aria-label="게시물 상세로 이동"
+                  />
+
                   <div className="flex gap-[8px]">
                     <div
                       className="flex size-[40px] items-center justify-center rounded-full
@@ -93,10 +102,9 @@ bg-violet-200 p-1"
                       <div className="flex items-center gap-2">
                         <p className="regular-13 text-gray-600">#{v.tag}</p>
                         <Button
-                          className="hidden h-[18px]! w-fit border border-gray-400 bg-gray-200 px-1
-text-xs group-hover:flex"
-                          onClick={(e) => {
-                            e.stopPropagation();
+                          className="relative z-10 hidden h-[18px]! w-fit border border-gray-400
+bg-gray-200 px-1 text-xs group-hover:flex"
+                          onClick={() => {
                             navigator.clipboard.writeText(`${v.gameName}#${v.tag}`);
                             toastMessage.success("소환사명이 복사되었습니다.");
                           }}
@@ -218,10 +226,7 @@ whitespace-normal"
                     {userInfo && (
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                          <Button
-                            className="size-[24px]"
-                            onClick={(e) => e.stopPropagation()}
-                          >
+                          <Button className="relative z-10 size-[24px]">
                             <EllipsisVertical className="size-[20px]" />
                           </Button>
                         </DropdownMenuTrigger>
@@ -230,7 +235,6 @@ whitespace-normal"
                           className="medium-14 w-[175px] rounded-[10px] border-none bg-white p-0
 text-gray-600 *:h-[43px] *:hover:bg-gray-200"
                           align="end"
-                          onClick={(e) => e.stopPropagation()}
                         >
                           {v.memberId === userInfo.id ? (
                             <DropdownMenuItem
@@ -254,7 +258,25 @@ text-gray-600 *:h-[43px] *:hover:bg-gray-200"
                               삭제하기
                             </DropdownMenuItem>
                           ) : (
-                            <DropdownMenuItem>차단하기</DropdownMenuItem>
+                            <>
+                              {v.isBlocked ? (
+                                <DropdownMenuItem
+                                  onClick={() =>
+                                    blockUser.mutate({ memberId: v.memberId, type: "unblock" })
+                                  }
+                                >
+                                  차단 해제
+                                </DropdownMenuItem>
+                              ) : (
+                                <DropdownMenuItem
+                                  onClick={() =>
+                                    blockUser.mutate({ memberId: v.memberId, type: "block" })
+                                  }
+                                >
+                                  차단하기
+                                </DropdownMenuItem>
+                              )}
+                            </>
                           )}
                         </DropdownMenuContent>
                       </DropdownMenu>

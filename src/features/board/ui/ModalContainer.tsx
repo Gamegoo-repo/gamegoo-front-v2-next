@@ -42,12 +42,13 @@ export function ModalContainer({ children, userInfo }: ModalContainerProps) {
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-gray-800/50"
+      className="fixed inset-0 z-50 flex items-center justify-center overflow-y-scroll
+bg-gray-800/50 py-10"
       onClick={() => router.back()}
     >
       <div
-        className="relative flex w-[555px] items-center justify-center rounded-[20px] bg-gray-100
-p-[32px] pt-[48px]"
+        className="relative my-auto flex w-[555px] items-center justify-center rounded-[20px]
+bg-gray-100 p-[32px] pt-[48px]"
         onClick={(e) => e.stopPropagation()}
       >
         <X

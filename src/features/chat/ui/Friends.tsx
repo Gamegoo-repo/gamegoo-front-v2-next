@@ -4,18 +4,24 @@ import { Search, Star } from "lucide-react";
 import { useState } from "react";
 
 import { cn } from "@/shared/libs/cn";
-import { characters } from "@/shared/model";
 import { Button } from "@/shared/ui/button";
 
-import { useLikeFriendMutation } from "@/features/chat";
+import { ProfileIcon } from "@/entities/profile";
+
+import { useLikeFriendMutation, useStartChatMutation } from "@/features/chat";
 import { FriendList } from "@/features/profile";
 
-export function Friends({ friendList }: { friendList: FriendList }) {
+type FriendsProps = {
+  friendList: FriendList;
+};
+
+export function Friends({ friendList }: FriendsProps) {
   const [input, setInput] = useState("");
+
   const likedFriends = friendList.filter((v) => v.liked);
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-2 px-4">
       <div className="relative flex items-center pt-2">
         <Search className="absolute left-2 size-5" />
         <input
@@ -28,63 +34,78 @@ focus:ring-2 focus:ring-violet-600"
       </div>
 
       {input.length > 0 ? (
-        <div className="space-y-4 *:space-y-2">
-          <p className="medium-11 text-gray-500">친구 목록</p>
-          <FriendListMap
-            friendList={friendList.filter((v) => v.name.includes(input.trim().replaceAll(" ", "")))}
-          />
-        </div>
+        <FriendListMap
+          friendList={friendList.filter((v) => v.name.includes(input.trim().replaceAll(" ", "")))}
+          label="친구"
+        />
       ) : (
-        <div className="space-y-4 *:space-y-2">
-          <div>
-            {likedFriends.length !== 0 && (
-              <p className="medium-11 text-gray-500">친구 {friendList.length}</p>
-            )}
-            <FriendListMap friendList={likedFriends} />
-          </div>
+        <>
+          <FriendListMap
+            friendList={likedFriends}
+            label="즐겨찾기"
+          />
 
-          <div>
-            <p className="medium-11 text-gray-500">친구 {friendList.length}</p>
-            <FriendListMap friendList={friendList} />
-          </div>
-        </div>
+          <FriendListMap
+            friendList={friendList}
+            label="친구"
+          />
+        </>
       )}
     </div>
   );
 }
 
-function FriendListMap({ friendList }: { friendList: FriendList }) {
+type FriendListMapProps = {
+  friendList: FriendList;
+  label: "즐겨찾기" | "친구";
+};
+
+function FriendListMap({ friendList, label }: FriendListMapProps) {
   const likeFriend = useLikeFriendMutation();
+  const startChat = useStartChatMutation();
 
   return (
-    <ul>
-      {friendList.map((v) => {
-        const ProfileIcon = characters[v.profileImg];
+    <div className="space-y-1">
+      {label === "즐겨찾기" && friendList.length !== 0 && (
+        <p className="medium-11 pl-2 text-gray-500">
+          {label} {friendList.length}
+        </p>
+      )}
+      {label === "친구" && (
+        <p className="medium-11 pl-2 text-gray-500">
+          {label} {friendList.length}
+        </p>
+      )}
 
-        return (
-          <li
-            key={v.memberId}
-            className="flex items-center justify-between"
-          >
-            <div className="flex gap-2">
-              <div className="size-12 rounded-full bg-violet-300 p-1.5">
-                <ProfileIcon />
-              </div>
-              <div>
-                <p className="font-semibold">{v.name}</p>
-                <p className="text-sm text-gray-500">#{v.tag}</p>
-              </div>
-            </div>
-
-            <Button
-              className="p-1!"
-              onClick={() => likeFriend.mutate({ memberId: v.memberId })}
+      <ul>
+        {friendList.map((v) => {
+          return (
+            <li
+              key={v.memberId}
+              className="flex cursor-pointer items-center justify-between rounded-lg p-2
+hover:bg-gray-200"
+              onClick={() => startChat.mutate({ memberId: v.memberId })}
             >
-              <Star className={cn("stroke-[1.5] text-violet-600", v.liked && "fill-violet-300")} />
-            </Button>
-          </li>
-        );
-      })}
-    </ul>
+              <div className="flex gap-2">
+                <ProfileIcon imgNum={v.profileImg} />
+                <div>
+                  <p className="font-semibold">{v.name}</p>
+                  <p className="text-sm text-gray-500">#{v.tag}</p>
+                </div>
+              </div>
+
+              <Button
+                className="p-1!"
+                onClick={() => likeFriend.mutate({ memberId: v.memberId })}
+              >
+                <Star
+                  className={cn("stroke-[1.5] text-violet-600", v.liked && "fill-violet-300")}
+                />
+              </Button>
+            </li>
+          );
+        })}
+      </ul>
+    </div>
   );
 }

@@ -6,12 +6,12 @@ type Message = {
   senderId: string;
   senderName: string;
   senderProfileImg: string;
-  messages: string;
+  message: string;
   createdAt: string;
   timestamp: number;
 };
 
-export const useChat = (accessToken: string) => {
+export const useChat = (accessToken: string, chatroomUuid: string) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isConnected, setIsConnected] = useState(false);
   const socketRef = useRef<Socket | null>(null);
@@ -27,25 +27,21 @@ export const useChat = (accessToken: string) => {
 
     // 연결 성공
     socket.on("connect", () => {
-      console.log("소켓 연결 성공: ", socket.id);
       setIsConnected(true);
     });
 
     // 연결 실패
-    socket.on("connect_error", (error) => {
-      console.error("소켓 연결 실패: ", error);
+    socket.on("connect_error", () => {
       setIsConnected(false);
     });
 
     // 메시지 수신
     socket.on("chat-message", (response) => {
-      console.log("메시지 수신: ", response);
       setMessages((prev) => [...prev, response.data]);
     });
 
     // 메시지 발신 성공
     socket.on("my-message-broadcast-success", (response) => {
-      console.log("발신 성공: ", response);
       setMessages((prev) => [...prev, response.data]);
     });
 
@@ -56,7 +52,6 @@ export const useChat = (accessToken: string) => {
 
     // 연결 종료
     socket.on("disconnect", () => {
-      console.log("소켓 연결 종료");
       setIsConnected(false);
     });
 
@@ -65,7 +60,7 @@ export const useChat = (accessToken: string) => {
     };
   }, [accessToken]);
 
-  const sendMessage = (chatroomUuid: string, message: string) => {
+  const sendMessage = (message: string) => {
     if (!socketRef.current) {
       console.error("소켓이 연결되지 않았습니다.");
       return;

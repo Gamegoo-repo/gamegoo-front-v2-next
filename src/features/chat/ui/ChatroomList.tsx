@@ -1,6 +1,5 @@
 import { EllipsisVertical } from "lucide-react";
 
-import { characters } from "@/shared/model";
 import { Button } from "@/shared/ui/button";
 import {
   DropdownMenu,
@@ -10,41 +9,33 @@ import {
 } from "@/shared/ui/dropdown-menu";
 
 import { ChatList } from "@/entities/chat";
+import { ProfileIcon } from "@/entities/profile";
 
 import { useExitChatMutation } from "@/features/chat";
 
-export function Chatroom({ chatList }: { chatList: ChatList }) {
+export function ChatroomList({ chatList }: { chatList: ChatList }) {
   const exitChat = useExitChatMutation();
 
   return (
-    <ul>
+    <ul className="px-4">
       {chatList.map((v) => {
-        const ProfileIcon = characters[v.targetMemberImg];
-
         return (
           <li
             key={v.chatroomId}
-            className="group flex items-center rounded-lg px-2 py-4 hover:bg-gray-200
+            className="group flex items-center justify-between rounded-lg p-2 hover:bg-gray-200
 has-[[data-state=open]]:bg-gray-200"
           >
-            <Button
-              className="flex-1 justify-start p-0 text-start"
-              asChild
-            >
-              <div>
-                <div className="size-12 rounded-full bg-violet-300 p-1.5">
-                  <ProfileIcon />
-                </div>
+            <div className="flex items-center gap-2">
+              <ProfileIcon imgNum={v.targetMemberImg} />
 
-                <div>
-                  <p>
-                    <span className="font-semibold">{v.targetMemberName}</span>{" "}
-                    <span className="text-gray-500">#{v.tag}</span>
-                  </p>
-                  <p className="text-sm text-gray-500">{v.lastMsg}</p>
-                </div>
+              <div>
+                <p>
+                  <span className="font-semibold">{v.targetMemberName}</span>{" "}
+                  <span className="text-gray-500">#{v.tag}</span>
+                </p>
+                <p className="text-sm text-gray-500">{v.lastMsg}</p>
               </div>
-            </Button>
+            </div>
 
             <DropdownMenu>
               <DropdownMenuTrigger asChild>

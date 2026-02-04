@@ -7,13 +7,15 @@ import { cn } from "@/shared/libs/cn";
 import { Button } from "@/shared/ui/button";
 
 import { LoginRequiredModal } from "@/features/auth";
-import { Friends, useFriendListQuery } from "@/features/chat";
+import { Chatroom, Friends, useFriendListQuery } from "@/features/chat";
+import { useChatListQuery } from "@/features/chat/model/hooks/queries/useChatListQuery";
 
 export function ChatWidget() {
   const [isOpen, setIsOpen] = useState(false);
   const [isOpenLoginRequiredModal, setIsOpenLoginRequiredModal] = useState(false);
   const [type, setType] = useState<"친구 목록" | "채팅방" | "룸">("친구 목록");
   const { data: friendList } = useFriendListQuery();
+  const { data: chatList } = useChatListQuery();
 
   return (
     <>
@@ -31,9 +33,9 @@ export function ChatWidget() {
         <MessageSquare className="size-8 stroke-[1.5] text-white" />
       </Button>
 
-      {isOpen && friendList && (
+      {isOpen && friendList && chatList && (
         <div
-          className="fixed right-8 bottom-36 h-[720px] max-h-[75dvh] w-[420px] space-y-2
+          className="fixed right-8 bottom-32 h-[720px] max-h-[75dvh] w-[420px] space-y-2
 overflow-y-scroll rounded-2xl border border-gray-200 bg-white shadow-lg"
         >
           {type !== "룸" && (
@@ -63,7 +65,13 @@ overflow-y-scroll rounded-2xl border border-gray-200 bg-white shadow-lg"
             </header>
           )}
 
-          <div className="px-4">{type === "친구 목록" && <Friends friendList={friendList} />}</div>
+          <div className="px-4">
+            {type === "친구 목록" ? (
+              <Friends friendList={friendList} />
+            ) : (
+              <Chatroom chatList={chatList} />
+            )}
+          </div>
         </div>
       )}
 

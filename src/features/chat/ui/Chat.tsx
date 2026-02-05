@@ -18,7 +18,6 @@ import {
 import { CHAT_HISTORY_QUERY_KEYS, useChat } from "@/entities/chat";
 import { ProfileIcon } from "@/entities/profile";
 
-import { useAuthStore } from "@/features/auth";
 import { useChatHistoryQuery, useChatStore, useExitChatMutation } from "@/features/chat";
 
 type ChatProps = {
@@ -39,8 +38,6 @@ export function Chat({ socket, uuid, onlineFriendsIds }: ChatProps) {
   const bottomRef = useRef<HTMLDivElement | null>(null);
   const [isAtBottom, setIsAtBottom] = useState(true);
   const [hasScroll, setHasScroll] = useState(false);
-  const setAccessToken = useAuthStore((s) => s.setAccessToken);
-  const accessToken = useAuthStore((s) => s.accessToken);
 
   const messagesWithHistory = useMemo(
     () => [...(chatHistory?.chatMessageList ?? []), ...messages],
@@ -155,30 +152,6 @@ export function Chat({ socket, uuid, onlineFriendsIds }: ChatProps) {
             <DropdownMenuItem>차단하기</DropdownMenuItem>
             <DropdownMenuItem>매너 평가</DropdownMenuItem>
             <DropdownMenuItem>비매너 평가</DropdownMenuItem>
-            <DropdownMenuItem
-              onClick={() => {
-                console.log("=== connection-jwt-error 테스트 시작 ===");
-
-                if (socket) {
-                  // 1. socket.auth 변경
-                  socket.auth = { token: "INVALID_TOKEN" };
-                  console.log("[Chat] socket.auth 변경됨");
-
-                  // 2. 연결 끊기
-                  console.log("[Chat] 소켓 연결 해제");
-                  socket.disconnect();
-
-                  // 3. 재연결
-                  setTimeout(() => {
-                    console.log("[Chat] 소켓 재연결 시도");
-                    socket.connect();
-                    console.log("[Chat] connection-update-token을 기다리는 중...");
-                  }, 1000);
-                }
-              }}
-            >
-              connection-jwt-error 테스트
-            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </header>

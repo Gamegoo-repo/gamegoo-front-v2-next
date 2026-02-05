@@ -2,14 +2,13 @@
 
 import { useQueryClient } from "@tanstack/react-query";
 import { MessageSquare, X } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { cn } from "@/shared/libs/cn";
 import { useSocketContext } from "@/shared/libs/socket/SocketContext";
 import { Button } from "@/shared/ui/button";
 
-import { CHAT_HISTORY_QUERY_KEYS } from "@/entities/chat";
-import { useFriendStatus } from "@/entities/profile";
+import { CHAT_HISTORY_QUERY_KEYS, CHAT_LIST_QUERY_KEYS } from "@/entities/chat";
 
 import { LoginRequiredModal } from "@/features/auth";
 import {
@@ -28,31 +27,49 @@ export function ChatWidget() {
   const { data: friendList } = useFriendListQuery();
   const { data: chatList } = useChatListQuery();
   const status = useChatStore((s) => s.status);
-  const queryClient = useQueryClient();
   const uuid = useChatStore((s) => s.uuid);
   const { socket } = useSocketContext();
-  const { onlineFriendsIds } = useFriendStatus(socket);
+  const queryClient = useQueryClient();
+
+  const unReadMessageCount =
+    chatList?.map((v) => v.notReadMsgCnt).reduce((acc, cur) => acc + cur) ?? 0;
+
+  useEffect(() => {
+    queryClient.invalidateQueries({
+      queryKey: CHAT_LIST_QUERY_KEYS.all
+    });
+    queryClient.invalidateQueries({
+      queryKey: CHAT_HISTORY_QUERY_KEYS.all
+    });
+  }, [isOpen]);
 
   return (
     <>
-      <Button
-        className="fixed right-8 bottom-8 size-20 rounded-full bg-violet-600"
-        onClick={() => {
-          if (friendList) {
-            setIsOpen(!isOpen);
+      <div className="relative size-20">
+        <Button
+          className="fixed right-8 bottom-8 size-20 rounded-full bg-violet-600"
+          onClick={() => {
+            if (friendList) {
+              setIsOpen(!isOpen);
 
-            queryClient.invalidateQueries({
-              queryKey: CHAT_HISTORY_QUERY_KEYS.uuid(uuid)
-            });
+              return;
+            }
 
-            return;
-          }
+            setIsOpenLoginRequiredModal(true);
+          }}
+        >
+          <MessageSquare className="size-8 stroke-[1.5] text-white" />
+        </Button>
 
-          setIsOpenLoginRequiredModal(true);
-        }}
-      >
-        <MessageSquare className="size-8 stroke-[1.5] text-white" />
-      </Button>
+        {unReadMessageCount > 0 && (
+          <div
+            className="absolute -top-2 -right-2 flex size-8 items-center justify-center rounded-full
+border border-violet-300 bg-violet-200 text-lg"
+          >
+            {unReadMessageCount}
+          </div>
+        )}
+      </div>
 
       {isOpen && friendList && chatList && (
         <div
@@ -104,7 +121,6 @@ overflow-y-scroll rounded-2xl border border-gray-200 bg-white shadow-lg"
             <Chat
               socket={socket}
               uuid={uuid}
-              onlineFriendsIds={onlineFriendsIds}
             />
           )}
         </div>

@@ -9,11 +9,7 @@ import { Button } from "@/shared/ui/button";
 import { Friend, useLikeFriendMutation } from "@/features/chat";
 import { FriendList } from "@/features/profile";
 
-type FriendsProps = {
-  friendList: FriendList;
-};
-
-export function Friends({ friendList }: FriendsProps) {
+export function Friends({ friendList }: { friendList: FriendList }) {
   const [input, setInput] = useState("");
 
   const likedFriends = friendList.filter((v) => v.liked);

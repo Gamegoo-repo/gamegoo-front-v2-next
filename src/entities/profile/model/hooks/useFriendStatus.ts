@@ -1,9 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { Socket } from "socket.io-client";
 
 import { SOCKET_EVENTS } from "@/shared/constants/socketEvents";
+
+import { useFriendStore } from "@/features/profile";
 
 interface BaseAndTimeStamp {
   event: string;
@@ -23,13 +25,14 @@ interface FriendStatus extends BaseAndTimeStamp {
 }
 
 export const useFriendStatus = (socket: Socket | null) => {
-  const [onlineFriendsIds, setOnlineFriendsIds] = useState<number[]>([]);
+  const { setOnlineFriendsIds } = useFriendStore();
 
   const HANDLERS = {
     [SOCKET_EVENTS.FRIEND.LIST]: (response: InitOnlineFriendList) =>
       setOnlineFriendsIds(response.data.onlineFriendMemberIdList),
     [SOCKET_EVENTS.FRIEND.ONLINE]: (response: FriendStatus) => {
       const memberId = response.data.memberId;
+
       setOnlineFriendsIds((prev) => [...prev.filter((v) => v !== memberId), memberId]);
     },
     [SOCKET_EVENTS.FRIEND.OFFLINE]: (response: FriendStatus) => {
@@ -52,11 +55,4 @@ export const useFriendStatus = (socket: Socket | null) => {
       });
     };
   }, [socket]);
-
-  const isFriendOnline = (memberId: number) => onlineFriendsIds.includes(memberId);
-
-  return {
-    onlineFriendsIds,
-    isFriendOnline
-  };
 };

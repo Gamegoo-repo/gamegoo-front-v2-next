@@ -19,14 +19,14 @@ import { CHAT_HISTORY_QUERY_KEYS, CHAT_LIST_QUERY_KEYS, useChat } from "@/entiti
 import { ProfileIcon } from "@/entities/profile";
 
 import { useChatHistoryQuery, useChatStore, useExitChatMutation } from "@/features/chat";
+import { useFriendStore } from "@/features/profile";
 
 type ChatProps = {
   socket: Socket | null;
   uuid: string;
-  onlineFriendsIds: number[];
 };
 
-export function Chat({ socket, uuid, onlineFriendsIds }: ChatProps) {
+export function Chat({ socket, uuid }: ChatProps) {
   const [input, setInput] = useState("");
   const [isAtBottom, setIsAtBottom] = useState(true);
   const [hasScroll, setHasScroll] = useState(false);
@@ -35,6 +35,7 @@ export function Chat({ socket, uuid, onlineFriendsIds }: ChatProps) {
   const { messages, sendMessage } = useChat(socket, uuid);
   const setStatus = useChatStore((s) => s.setStatus);
   const data = useChatStore((s) => s.data);
+  const onlineFriendsIds = useFriendStore((s) => s.onlineFriendsIds);
   const { data: chatHistory } = useChatHistoryQuery(uuid);
   const exitChat = useExitChatMutation();
   const queryClient = useQueryClient();

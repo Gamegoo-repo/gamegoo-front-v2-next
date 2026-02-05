@@ -7,7 +7,7 @@ type ProfileIconProps = {
 };
 
 export function ProfileIcon({ imgNum, size }: ProfileIconProps) {
-  const ProfileIcon = characters[imgNum];
+  const Icon = characters[imgNum - 1];
 
   return (
     <div
@@ -16,7 +16,7 @@ export function ProfileIcon({ imgNum, size }: ProfileIconProps) {
         size && `size-[${size}]`
       )}
     >
-      <ProfileIcon />
+      <Icon />
     </div>
   );
 }

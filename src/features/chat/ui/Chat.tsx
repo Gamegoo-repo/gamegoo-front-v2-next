@@ -28,16 +28,16 @@ type ChatProps = {
 
 export function Chat({ socket, uuid, onlineFriendsIds }: ChatProps) {
   const [input, setInput] = useState("");
+  const [isAtBottom, setIsAtBottom] = useState(true);
+  const [hasScroll, setHasScroll] = useState(false);
+  const chatRef = useRef<HTMLUListElement | null>(null);
+  const bottomRef = useRef<HTMLDivElement | null>(null);
+  const { messages, sendMessage } = useChat(socket, uuid);
   const setStatus = useChatStore((s) => s.setStatus);
   const data = useChatStore((s) => s.data);
-  const { messages, sendMessage } = useChat(socket, uuid);
   const { data: chatHistory } = useChatHistoryQuery(uuid);
   const exitChat = useExitChatMutation();
   const queryClient = useQueryClient();
-  const chatRef = useRef<HTMLUListElement | null>(null);
-  const bottomRef = useRef<HTMLDivElement | null>(null);
-  const [isAtBottom, setIsAtBottom] = useState(true);
-  const [hasScroll, setHasScroll] = useState(false);
 
   const messagesWithHistory = useMemo(
     () => [...(chatHistory?.chatMessageList ?? []), ...messages],
@@ -157,7 +157,7 @@ export function Chat({ socket, uuid, onlineFriendsIds }: ChatProps) {
       </header>
 
       <ul
-        className="h-full space-y-2 overflow-y-scroll px-3 pt-3 last:bg-blue-200"
+        className="h-full overflow-y-scroll px-3 pt-3 last:bg-blue-200"
         ref={chatRef}
       >
         {messagesWithHistory.map((v, i) => {
@@ -169,19 +169,25 @@ export function Chat({ socket, uuid, onlineFriendsIds }: ChatProps) {
           return (
             <li key={`${v.timestamp}-${i}`}>
               {isNewDay && (
-                <div className="text-center">
+                <div className="my-2 text-center">
                   <span className="rounded-md bg-gray-200 px-4 py-0.5 text-sm">
                     {getDisplayDate(v.createdAt)}
                   </span>
                 </div>
               )}
 
-              <div className="flex flex-1 items-center gap-1">
+              <div className="flex flex-1 items-center gap-2">
                 {v.senderName === data.gameName && (
-                  <ProfileIcon
-                    size="38px"
-                    imgNum={Number(v.senderProfileImg)}
-                  />
+                  <div
+                    className={cn(
+                      messagesWithHistory[i - 1]?.senderId === v.senderId && "invisible"
+                    )}
+                  >
+                    <ProfileIcon
+                      size="38px"
+                      imgNum={Number(v.senderProfileImg)}
+                    />
+                  </div>
                 )}
 
                 <div

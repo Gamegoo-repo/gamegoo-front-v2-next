@@ -6,6 +6,7 @@ import { useState } from "react";
 
 import { useSocket } from "@/shared/api/socket/useSocket";
 import { cn } from "@/shared/libs/cn";
+import { useSocketContext } from "@/shared/libs/socket/SocketContext";
 import { Button } from "@/shared/ui/button";
 
 import { CHAT_HISTORY_QUERY_KEYS } from "@/entities/chat";
@@ -31,7 +32,7 @@ export function ChatWidget() {
   const queryClient = useQueryClient();
   const uuid = useChatStore((s) => s.uuid);
   const accessToken = useAuthStore((s) => s.accessToken);
-  const { socket } = useSocket(accessToken!);
+  const { socket } = useSocketContext();
   const { onlineFriendsIds } = useFriendStatus(socket);
 
   return (

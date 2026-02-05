@@ -53,6 +53,16 @@ export function ChatWidget() {
     );
   }, [msg, chatList]);
 
+  useEffect(() => {
+    const detectPressEnter = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setIsOpen(false);
+    };
+
+    window.addEventListener("keydown", detectPressEnter);
+
+    return () => window.removeEventListener("keydown", detectPressEnter);
+  }, []);
+
   return (
     <>
       <div className="relative size-20">

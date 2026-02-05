@@ -15,7 +15,7 @@ import {
   DropdownMenuTrigger
 } from "@/shared/ui/dropdown-menu";
 
-import { CHAT_HISTORY_QUERY_KEYS, useChat } from "@/entities/chat";
+import { CHAT_HISTORY_QUERY_KEYS, CHAT_LIST_QUERY_KEYS, useChat } from "@/entities/chat";
 import { ProfileIcon } from "@/entities/profile";
 
 import { useChatHistoryQuery, useChatStore, useExitChatMutation } from "@/features/chat";
@@ -95,6 +95,9 @@ export function Chat({ socket, uuid, onlineFriendsIds }: ChatProps) {
 
               queryClient.invalidateQueries({
                 queryKey: CHAT_HISTORY_QUERY_KEYS.uuid(uuid)
+              });
+              queryClient.invalidateQueries({
+                queryKey: CHAT_LIST_QUERY_KEYS.all
               });
             }}
           >
@@ -176,7 +179,7 @@ export function Chat({ socket, uuid, onlineFriendsIds }: ChatProps) {
                 </div>
               )}
 
-              <div className="flex flex-1 items-center gap-2">
+              <div className="flex items-center gap-2">
                 {v.senderName === data.gameName && (
                   <div
                     className={cn(
@@ -192,18 +195,18 @@ export function Chat({ socket, uuid, onlineFriendsIds }: ChatProps) {
 
                 <div
                   className={cn(
-                    "flex items-end gap-2",
+                    "flex h-[38px] items-center gap-2",
                     v.senderName === data.gameName ? "flex-row-reverse" : "ml-auto",
                     v.senderName !== data.gameName && hasScroll && "pr-2"
                   )}
                 >
-                  <span className="text-[10px] text-violet-400">
+                  <div className="flex h-full items-end text-[10px] text-violet-400">
                     {new Date(v.timestamp).toLocaleString("ko-KR", {
                       hour: "numeric",
                       minute: "numeric",
                       hour12: true
                     })}
-                  </span>
+                  </div>
                   <p
                     className={cn(
                       "w-fit rounded-xl px-2 py-1",

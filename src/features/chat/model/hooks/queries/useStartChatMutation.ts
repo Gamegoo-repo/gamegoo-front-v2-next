@@ -1,10 +1,13 @@
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 import { clientSideOpenapiClient } from "@/shared/api/clientSideOpenapiClient";
+
+import { CHAT_LIST_QUERY_KEYS } from "@/entities/chat";
 
 import { useChatStore } from "@/features/chat/model/store/chat.store";
 
 export const useStartChatMutation = () => {
+  const queryClient = useQueryClient();
   const setUuid = useChatStore((s) => s.setUuid);
   const setData = useChatStore((s) => s.setData);
   const setStatus = useChatStore((s) => s.setStatus);
@@ -32,6 +35,10 @@ export const useStartChatMutation = () => {
       setUuid(data.uuid);
       setData(data);
       setStatus("ACTIVE");
+
+      queryClient.invalidateQueries({
+        queryKey: CHAT_LIST_QUERY_KEYS.all
+      });
     }
   });
 };

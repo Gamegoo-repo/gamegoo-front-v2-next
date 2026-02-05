@@ -57,7 +57,7 @@ export function ChatWidget() {
       {isOpen && friendList && chatList && (
         <div
           className="fixed right-8 bottom-32 h-[720px] max-h-[75dvh] w-[420px] space-y-2
-overflow-y-scroll rounded-2xl bg-white shadow-lg"
+overflow-y-scroll rounded-2xl border border-gray-200 bg-white shadow-lg"
         >
           {status === "INACTIVE" ? (
             <>

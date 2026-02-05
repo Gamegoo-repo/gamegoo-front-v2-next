@@ -2,7 +2,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 import { clientSideOpenapiClient } from "@/shared/api/clientSideOpenapiClient";
 
-import { CHAT_LIST_QUERY_KEYS } from "@/entities/chat";
+import { CHAT_HISTORY_QUERY_KEYS, CHAT_LIST_QUERY_KEYS } from "@/entities/chat";
 
 export const useExitChatMutation = () => {
   const queryClient = useQueryClient();
@@ -20,7 +20,10 @@ export const useExitChatMutation = () => {
       if (error) throw error;
     },
 
-    onSuccess: () => {
+    onSuccess: (_, variables) => {
+      queryClient.removeQueries({
+        queryKey: CHAT_HISTORY_QUERY_KEYS.uuid(variables.chatroomUuid)
+      });
       queryClient.invalidateQueries({
         queryKey: CHAT_LIST_QUERY_KEYS.all
       });

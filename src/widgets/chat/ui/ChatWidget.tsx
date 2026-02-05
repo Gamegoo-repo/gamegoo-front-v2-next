@@ -4,6 +4,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { MessageSquare, X } from "lucide-react";
 import { useEffect, useState } from "react";
 
+import { useSocketEvent } from "@/shared/hooks/socket/useSocketEvent";
 import { cn } from "@/shared/libs/cn";
 import { useSocketContext } from "@/shared/libs/socket/SocketContext";
 import { Button } from "@/shared/ui/button";
@@ -24,15 +25,14 @@ export function ChatWidget() {
   const [isOpen, setIsOpen] = useState(false);
   const [isOpenLoginRequiredModal, setIsOpenLoginRequiredModal] = useState(false);
   const [type, setType] = useState<"친구 목록" | "채팅방">("친구 목록");
+  const [unReadMessageCount, setUnReadMessageCount] = useState(0);
   const { data: friendList } = useFriendListQuery();
   const { data: chatList } = useChatListQuery();
   const status = useChatStore((s) => s.status);
   const uuid = useChatStore((s) => s.uuid);
+  const msg = useSocketEvent("chat-message");
   const { socket } = useSocketContext();
   const queryClient = useQueryClient();
-
-  const unReadMessageCount =
-    chatList?.map((v) => v.notReadMsgCnt).reduce((acc, cur) => acc + cur) ?? 0;
 
   useEffect(() => {
     queryClient.invalidateQueries({
@@ -42,6 +42,16 @@ export function ChatWidget() {
       queryKey: CHAT_HISTORY_QUERY_KEYS.all
     });
   }, [isOpen]);
+
+  useEffect(() => {
+    queryClient.invalidateQueries({
+      queryKey: CHAT_LIST_QUERY_KEYS.all
+    });
+
+    setUnReadMessageCount(
+      chatList?.map((v) => v.notReadMsgCnt).reduce((acc, cur) => acc + cur) ?? 0
+    );
+  }, [msg, chatList]);
 
   return (
     <>

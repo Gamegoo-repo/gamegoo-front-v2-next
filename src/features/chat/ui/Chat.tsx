@@ -2,6 +2,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { ChevronLeft, EllipsisVertical } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 
+import { useSocket } from "@/shared/api/socket/useSocket";
 import { cn } from "@/shared/libs/cn";
 import { toastMessage } from "@/shared/model";
 import { Button } from "@/shared/ui/button";
@@ -23,7 +24,8 @@ export function Chat({ uuid }: { uuid: string }) {
   const setStatus = useChatStore((s) => s.setStatus);
   const data = useChatStore((s) => s.data);
   const accessToken = useAuthStore((s) => s.accessToken);
-  const { isConnected, messages, sendMessage } = useChat(accessToken!, uuid);
+  const { socket } = useSocket(accessToken!);
+  const { messages, sendMessage } = useChat(socket, uuid);
   const { data: chatHistory } = useChatHistoryQuery(uuid);
   const exitChat = useExitChatMutation();
   const queryClient = useQueryClient();
@@ -197,6 +199,7 @@ export function Chat({ uuid }: { uuid: string }) {
           className="block h-18 w-full resize-none border-none outline-none"
           maxLength={1000}
           value={input}
+          autoFocus
           onChange={(e) => setInput(e.target.value)}
           placeholder="메시지를 입력하세요."
           onKeyDown={(e) => {

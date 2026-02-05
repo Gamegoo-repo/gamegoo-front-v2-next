@@ -1,72 +1,63 @@
-import { useEffect, useRef, useState } from "react";
-import { Socket, io } from "socket.io-client";
+import { useEffect, useState } from "react";
+import { Socket } from "socket.io-client";
 
-type Message = {
-  chatroomUuid: string;
-  senderId: string;
-  senderName: string;
-  senderProfileImg: string;
-  message: string;
-  createdAt: string;
-  timestamp: number;
+import { SOCKET_EVENTS } from "@/shared/constants/socketEvents";
+
+type MessageEmitByServer = {
+  event: string;
+  data: {
+    chatroomUuid: string;
+    senderId: string;
+    senderName: string;
+    senderProfileImg: string;
+    message: string;
+    createdAt: string;
+    timestamp: number;
+  };
+  timestamp: string;
 };
 
-export const useChat = (accessToken: string, chatroomUuid: string) => {
-  const [messages, setMessages] = useState<Message[]>([]);
+type Err = {
+  event: string;
+  data: string;
+  timestamp: string;
+};
+
+export const useChat = (socket: Socket | null, chatroomUuid: string) => {
+  const [messages, setMessages] = useState<MessageEmitByServer["data"][]>([]);
   const [isConnected, setIsConnected] = useState(false);
-  const socketRef = useRef<Socket | null>(null);
+
+  const HANDLERS = {
+    [SOCKET_EVENTS.CONNECT]: () => setIsConnected(true),
+    [SOCKET_EVENTS.DISCONNECT]: () => setIsConnected(false),
+    [SOCKET_EVENTS.CHAT.MESSAGE]: (response: MessageEmitByServer) =>
+      setMessages((prev) => [...prev, response.data]),
+    [SOCKET_EVENTS.CHAT.SUCCESS]: (response: MessageEmitByServer) =>
+      setMessages((prev) => [...prev, response.data]),
+    [SOCKET_EVENTS.ERROR]: (error: Err) => console.error(error)
+  };
 
   useEffect(() => {
-    const socket = io(process.env.NEXT_PUBLIC_SOCKET_URL, {
-      auth: {
-        token: accessToken
-      }
-    });
+    if (!socket) return;
 
-    socketRef.current = socket;
-
-    // 연결 성공
-    socket.on("connect", () => {
-      setIsConnected(true);
-    });
-
-    // 연결 실패
-    socket.on("connect_error", () => {
-      setIsConnected(false);
-    });
-
-    // 메시지 수신
-    socket.on("chat-message", (response) => {
-      setMessages((prev) => [...prev, response.data]);
-    });
-
-    // 메시지 발신 성공
-    socket.on("my-message-broadcast-success", (response) => {
-      setMessages((prev) => [...prev, response.data]);
-    });
-
-    // 에러
-    socket.on("error", (error) => {
-      console.error("소켓 에러: ", error);
-    });
-
-    // 연결 종료
-    socket.on("disconnect", () => {
-      setIsConnected(false);
+    Object.entries(HANDLERS).forEach(([event, handler]) => {
+      socket.on(event, handler);
     });
 
     return () => {
-      socket.disconnect();
+      Object.entries(HANDLERS).forEach(([event, handler]) => {
+        socket.off(event, handler);
+      });
     };
-  }, [accessToken]);
+  }, [socket, chatroomUuid]);
 
   const sendMessage = (message: string) => {
-    if (!socketRef.current) {
+    if (!socket) {
       console.error("소켓이 연결되지 않았습니다.");
       return;
     }
 
-    socketRef.current.emit("chat-message", {
+    socket.emit("chat-message", {
       uuid: chatroomUuid,
       message
     });

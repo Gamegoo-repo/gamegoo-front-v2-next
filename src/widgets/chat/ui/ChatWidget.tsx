@@ -4,12 +4,14 @@ import { useQueryClient } from "@tanstack/react-query";
 import { MessageSquare, X } from "lucide-react";
 import { useState } from "react";
 
+import { useSocket } from "@/shared/api/socket/useSocket";
 import { cn } from "@/shared/libs/cn";
 import { Button } from "@/shared/ui/button";
 
 import { CHAT_HISTORY_QUERY_KEYS } from "@/entities/chat";
+import { useFriendStatus } from "@/entities/profile";
 
-import { LoginRequiredModal } from "@/features/auth";
+import { LoginRequiredModal, useAuthStore } from "@/features/auth";
 import {
   Chat,
   ChatroomList,
@@ -28,6 +30,9 @@ export function ChatWidget() {
   const status = useChatStore((s) => s.status);
   const queryClient = useQueryClient();
   const uuid = useChatStore((s) => s.uuid);
+  const accessToken = useAuthStore((s) => s.accessToken);
+  const { socket } = useSocket(accessToken!);
+  const { onlineFriendsIds } = useFriendStatus(socket);
 
   return (
     <>
@@ -97,7 +102,11 @@ overflow-y-scroll rounded-2xl bg-white shadow-lg"
               )}
             </>
           ) : (
-            <Chat uuid={uuid} />
+            <Chat
+              socket={socket}
+              uuid={uuid}
+              onlineFriendsIds={onlineFriendsIds}
+            />
           )}
         </div>
       )}

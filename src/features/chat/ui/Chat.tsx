@@ -1,8 +1,8 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { ChevronLeft, EllipsisVertical } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { Socket } from "socket.io-client";
 
-import { useSocket } from "@/shared/api/socket/useSocket";
 import { cn } from "@/shared/libs/cn";
 import { toastMessage } from "@/shared/model";
 import { Button } from "@/shared/ui/button";
@@ -16,15 +16,18 @@ import {
 import { CHAT_HISTORY_QUERY_KEYS, useChat } from "@/entities/chat";
 import { ProfileIcon } from "@/entities/profile";
 
-import { useAuthStore } from "@/features/auth";
 import { useChatHistoryQuery, useChatStore, useExitChatMutation } from "@/features/chat";
 
-export function Chat({ uuid }: { uuid: string }) {
+type ChatProps = {
+  socket: Socket | null;
+  uuid: string;
+  onlineFriendsIds: number[];
+};
+
+export function Chat({ socket, uuid, onlineFriendsIds }: ChatProps) {
   const [input, setInput] = useState("");
   const setStatus = useChatStore((s) => s.setStatus);
   const data = useChatStore((s) => s.data);
-  const accessToken = useAuthStore((s) => s.accessToken);
-  const { socket } = useSocket(accessToken!);
   const { messages, sendMessage } = useChat(socket, uuid);
   const { data: chatHistory } = useChatHistoryQuery(uuid);
   const exitChat = useExitChatMutation();
@@ -77,14 +80,14 @@ export function Chat({ uuid }: { uuid: string }) {
     return () => window.removeEventListener("resize", checkScroll);
   }, [messagesWithHistory]);
 
-  if (!data || !chatHistory) return null;
+  if (!data) return null;
 
   return (
     <div className="flex h-full flex-col bg-violet-200 pt-4">
       <header className="flex items-center justify-between border-b border-violet-300 px-3 pb-4">
         <div className="flex items-center gap-2">
           <Button
-            className="p-1! hover:bg-violet-300"
+            className="p-1! hover:bg-gray-200"
             onClick={() => {
               setStatus("INACTIVE");
 
@@ -98,6 +101,7 @@ export function Chat({ uuid }: { uuid: string }) {
 
           <div className="flex items-center gap-2">
             <ProfileIcon imgNum={data.memberProfileImg} />
+
             <div>
               <div className="flex items-center gap-4 py-0! font-semibold">
                 <Button
@@ -111,14 +115,20 @@ export function Chat({ uuid }: { uuid: string }) {
                   <span className="text-gray-500">#{data.tag}</span>
                 </Button>
               </div>
-              <p className="medium-11 text-gray-600">[온라인 여부]</p>
+              <div className="medium-11">
+                {onlineFriendsIds.includes(data.memberId) ? (
+                  <span className="rounded-md bg-green-400 px-2 py-0.5 font-semibold">온라인</span>
+                ) : (
+                  <span className="rounded-md bg-gray-200 px-2 py-0.5 font-semibold">오프라인</span>
+                )}
+              </div>
             </div>
           </div>
         </div>
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button className="p-1! hover:bg-violet-300">
+            <Button className="p-1! hover:bg-gray-200">
               <EllipsisVertical className="size-5!" />
             </Button>
           </DropdownMenuTrigger>
@@ -207,7 +217,8 @@ export function Chat({ uuid }: { uuid: string }) {
               if (e.shiftKey || e.nativeEvent.isComposing) return;
 
               e.preventDefault();
-              sendMessage(input.trim());
+
+              if (input.trim().length > 0) sendMessage(input.trim());
               setInput("");
             }
           }}
@@ -215,9 +226,9 @@ export function Chat({ uuid }: { uuid: string }) {
         <div className="flex items-center justify-between">
           <p className="text-xs text-violet-600">{input.length} / 1000</p>
           <Button
-            className="rounded-full bg-violet-600 p-4 text-white"
+            className="rounded-full bg-violet-600 p-4 text-white hover:bg-violet-500"
             onClick={() => {
-              sendMessage(input.trim());
+              if (input.trim().length > 0) sendMessage(input.trim());
               setInput("");
             }}
           >

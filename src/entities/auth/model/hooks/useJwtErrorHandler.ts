@@ -26,16 +26,18 @@ export const useJwtErrorHandler = (socket: Socket | null) => {
   };
 
   const HANDLERS = {
-    [SOCKET_EVENTS.JWT_UPDATE.CONNECTION]: async () => {
+    [SOCKET_EVENTS.JWT_ERROR.CONNECTION]: async () => {
       try {
         const accessToken = await refreshAccessToken();
 
-        if (accessToken) socket?.emit(SOCKET_EVENTS.JWT_UPDATE.CONNECTION, { token: accessToken });
+        if (accessToken) {
+          socket?.emit(SOCKET_EVENTS.JWT_UPDATE, { token: accessToken });
+        }
       } catch (error) {
         await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/auth/logout`);
       }
     },
-    [SOCKET_EVENTS.JWT_UPDATE.EXPIRED]: async (response: JwtExpiredError) => {
+    [SOCKET_EVENTS.JWT_ERROR.EXPIRED]: async (response: JwtExpiredError) => {
       const accessToken = await refreshAccessToken();
       const { eventName, eventData } = response.data;
 

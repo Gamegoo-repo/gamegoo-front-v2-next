@@ -11,8 +11,9 @@ export const SOCKET_EVENTS = {
     OFFLINE: "friend-offline",
     LIST: "init-online-friend-list"
   },
-  JWT_UPDATE: {
-    CONNECTION: "connection-update-token",
+  JWT_ERROR: {
+    CONNECTION: "connection-jwt-error",
     EXPIRED: "jwt-expired-error"
-  }
+  },
+  JWT_UPDATE: "connection-update-token"
 } as const;

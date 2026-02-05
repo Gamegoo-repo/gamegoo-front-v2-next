@@ -1,9 +1,11 @@
 import { useQueryClient } from "@tanstack/react-query";
+import { format } from "date-fns";
 import { ChevronLeft, EllipsisVertical } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Socket } from "socket.io-client";
 
 import { cn } from "@/shared/libs/cn";
+import { getDisplayDate } from "@/shared/libs/date/getDisplayDate";
 import { toastMessage } from "@/shared/model";
 import { Button } from "@/shared/ui/button";
 import {
@@ -16,6 +18,7 @@ import {
 import { CHAT_HISTORY_QUERY_KEYS, useChat } from "@/entities/chat";
 import { ProfileIcon } from "@/entities/profile";
 
+import { useAuthStore } from "@/features/auth";
 import { useChatHistoryQuery, useChatStore, useExitChatMutation } from "@/features/chat";
 
 type ChatProps = {
@@ -36,6 +39,8 @@ export function Chat({ socket, uuid, onlineFriendsIds }: ChatProps) {
   const bottomRef = useRef<HTMLDivElement | null>(null);
   const [isAtBottom, setIsAtBottom] = useState(true);
   const [hasScroll, setHasScroll] = useState(false);
+  const setAccessToken = useAuthStore((s) => s.setAccessToken);
+  const accessToken = useAuthStore((s) => s.accessToken);
 
   const messagesWithHistory = useMemo(
     () => [...(chatHistory?.chatMessageList ?? []), ...messages],
@@ -159,40 +164,52 @@ export function Chat({ socket, uuid, onlineFriendsIds }: ChatProps) {
         ref={chatRef}
       >
         {messagesWithHistory.map((v, i) => {
+          const currentDate = format(new Date(v.createdAt), "yyyy-MM-dd");
+          const prevDate =
+            i > 0 ? format(new Date(messagesWithHistory[i - 1].createdAt), "yyyy-MM-dd") : null;
+          const isNewDay = currentDate !== prevDate;
+
           return (
-            <li
-              key={`${v.timestamp}-${i}`}
-              className="flex items-center gap-2"
-            >
-              {v.senderName === data.gameName && (
-                <ProfileIcon
-                  size="38px"
-                  imgNum={Number(v.senderProfileImg)}
-                />
+            <li key={`${v.timestamp}-${i}`}>
+              {isNewDay && (
+                <div className="text-center">
+                  <span className="rounded-md bg-gray-200 px-4 py-0.5 text-sm">
+                    {getDisplayDate(v.createdAt)}
+                  </span>
+                </div>
               )}
 
-              <div
-                className={cn(
-                  "flex items-end gap-2",
-                  v.senderName === data.gameName ? "flex-row-reverse" : "ml-auto",
-                  v.senderName !== data.gameName && hasScroll && "pr-2"
+              <div className="flex flex-1 items-center gap-1">
+                {v.senderName === data.gameName && (
+                  <ProfileIcon
+                    size="38px"
+                    imgNum={Number(v.senderProfileImg)}
+                  />
                 )}
-              >
-                <span className="text-[10px] text-violet-400">
-                  {new Date(v.timestamp).toLocaleString("ko-KR", {
-                    hour: "numeric",
-                    minute: "numeric",
-                    hour12: true
-                  })}
-                </span>
-                <p
+
+                <div
                   className={cn(
-                    "w-fit rounded-xl px-2 py-1",
-                    v.senderName === data.gameName ? "bg-white" : "ml-auto bg-violet-300"
+                    "flex items-end gap-2",
+                    v.senderName === data.gameName ? "flex-row-reverse" : "ml-auto",
+                    v.senderName !== data.gameName && hasScroll && "pr-2"
                   )}
                 >
-                  {v.message}
-                </p>
+                  <span className="text-[10px] text-violet-400">
+                    {new Date(v.timestamp).toLocaleString("ko-KR", {
+                      hour: "numeric",
+                      minute: "numeric",
+                      hour12: true
+                    })}
+                  </span>
+                  <p
+                    className={cn(
+                      "w-fit rounded-xl px-2 py-1",
+                      v.senderName === data.gameName ? "bg-white" : "ml-auto bg-violet-300"
+                    )}
+                  >
+                    {v.message}
+                  </p>
+                </div>
               </div>
             </li>
           );

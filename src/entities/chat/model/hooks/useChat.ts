@@ -3,19 +3,7 @@ import { Socket } from "socket.io-client";
 
 import { SOCKET_EVENTS } from "@/shared/constants/socketEvents";
 
-type MessageEmitByServer = {
-  event: string;
-  data: {
-    chatroomUuid: string;
-    senderId: string;
-    senderName: string;
-    senderProfileImg: string;
-    message: string;
-    createdAt: string;
-    timestamp: number;
-  };
-  timestamp: string;
-};
+import { MessageEmitByServer } from "@/entities/chat";
 
 type Err = {
   event: string;

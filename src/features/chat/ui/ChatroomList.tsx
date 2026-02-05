@@ -1,20 +1,8 @@
-import { EllipsisVertical } from "lucide-react";
-
-import { Button } from "@/shared/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger
-} from "@/shared/ui/dropdown-menu";
-
 import { ChatList } from "@/entities/chat";
 
-import { Friend, useExitChatMutation } from "@/features/chat";
+import { Friend } from "@/features/chat";
 
 export function ChatroomList({ chatList }: { chatList: ChatList }) {
-  const exitChat = useExitChatMutation();
-
   return (
     <ul className="px-4 pt-2">
       {chatList.map((v) => {
@@ -22,12 +10,15 @@ export function ChatroomList({ chatList }: { chatList: ChatList }) {
           <Friend
             name={v.targetMemberName}
             key={v.targetMemberId}
+            type="채팅방"
             tag={v.tag}
             memberId={v.targetMemberId}
             imgNum={v.targetMemberImg}
             label={v.lastMsg ?? ""}
+            lastMsgAt={v.lastMsgAt}
           >
-            <DropdownMenu>
+            <></>
+            {/* <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button>
                   <EllipsisVertical className="size-5!" />
@@ -44,7 +35,7 @@ export function ChatroomList({ chatList }: { chatList: ChatList }) {
                   채팅방 나가기
                 </DropdownMenuItem>
               </DropdownMenuContent>
-            </DropdownMenu>
+            </DropdownMenu> */}
           </Friend>
         );
       })}

@@ -11,3 +11,16 @@ export type StartChat = NonNullable<
 export type ChatHistory = NonNullable<
   paths["/api/v2/chat/{chatroomUuid}/messages"]["get"]["responses"]["200"]["content"]["*/*"]["data"]
 >;
+
+export type MessageEmitByServer = {
+  event: string;
+  data: {
+    senderId: number;
+    senderName: string;
+    senderProfileImg: string;
+    message: string;
+    createdAt: string;
+    timestamp: number;
+  };
+  timestamp: string;
+};

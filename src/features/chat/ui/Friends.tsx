@@ -80,13 +80,17 @@ function FriendListMap({ friendList, label }: FriendListMapProps) {
             <Friend
               name={v.name}
               key={v.memberId}
+              type="친구 목록"
               memberId={v.memberId}
               imgNum={v.profileImg}
               label={`#${v.tag}`}
             >
               <Button
                 className="p-1!"
-                onClick={() => likeFriend.mutate({ memberId: v.memberId })}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  likeFriend.mutate({ memberId: v.memberId });
+                }}
               >
                 <Star
                   className={cn("stroke-[1.5] text-violet-600", v.liked && "fill-violet-300")}

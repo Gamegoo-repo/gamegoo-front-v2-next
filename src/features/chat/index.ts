@@ -1,6 +1,7 @@
 export { Friends } from "./ui/Friends";
 export { ChatroomList } from "./ui/ChatroomList";
 export { Chat } from "./ui/Chat";
+export { Friend } from "./ui/Friend";
 
 export { useFriendListQuery } from "./model/hooks/queries/useFriendListQuery";
 export { useLikeFriendMutation } from "./model/hooks/queries/useLikeFriendMutation";

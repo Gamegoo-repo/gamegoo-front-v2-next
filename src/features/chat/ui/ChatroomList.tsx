@@ -9,38 +9,28 @@ import {
 } from "@/shared/ui/dropdown-menu";
 
 import { ChatList } from "@/entities/chat";
-import { ProfileIcon } from "@/entities/profile";
 
-import { useExitChatMutation } from "@/features/chat";
+import { Friend, useExitChatMutation } from "@/features/chat";
 
 export function ChatroomList({ chatList }: { chatList: ChatList }) {
   const exitChat = useExitChatMutation();
 
   return (
-    <ul className="px-4">
+    <ul className="px-4 pt-2">
       {chatList.map((v) => {
         return (
-          <li
-            key={v.chatroomId}
-            className="group flex items-center justify-between rounded-lg p-2 hover:bg-gray-200
-has-[[data-state=open]]:bg-gray-200"
+          <Friend
+            name={v.targetMemberName}
+            key={v.targetMemberId}
+            tag={v.tag}
+            memberId={v.targetMemberId}
+            imgNum={v.targetMemberImg}
+            label={v.lastMsg ?? ""}
           >
-            <div className="flex items-center gap-2">
-              <ProfileIcon imgNum={v.targetMemberImg} />
-
-              <div>
-                <p>
-                  <span className="font-semibold">{v.targetMemberName}</span>{" "}
-                  <span className="text-gray-500">#{v.tag}</span>
-                </p>
-                <p className="text-sm text-gray-500">{v.lastMsg}</p>
-              </div>
-            </div>
-
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button>
-                  <EllipsisVertical className="size-4! shrink-0" />
+                  <EllipsisVertical className="size-5!" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent
@@ -55,7 +45,7 @@ has-[[data-state=open]]:bg-gray-200"
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
-          </li>
+          </Friend>
         );
       })}
 

@@ -6,9 +6,7 @@ import { useState } from "react";
 import { cn } from "@/shared/libs/cn";
 import { Button } from "@/shared/ui/button";
 
-import { ProfileIcon } from "@/entities/profile";
-
-import { useLikeFriendMutation, useStartChatMutation } from "@/features/chat";
+import { Friend, useLikeFriendMutation } from "@/features/chat";
 import { FriendList } from "@/features/profile";
 
 type FriendsProps = {
@@ -62,7 +60,6 @@ type FriendListMapProps = {
 
 function FriendListMap({ friendList, label }: FriendListMapProps) {
   const likeFriend = useLikeFriendMutation();
-  const startChat = useStartChatMutation();
 
   return (
     <div className="space-y-1">
@@ -80,20 +77,13 @@ function FriendListMap({ friendList, label }: FriendListMapProps) {
       <ul>
         {friendList.map((v) => {
           return (
-            <li
+            <Friend
+              name={v.name}
               key={v.memberId}
-              className="flex cursor-pointer items-center justify-between rounded-lg p-2
-hover:bg-gray-200"
-              onClick={() => startChat.mutate({ memberId: v.memberId })}
+              memberId={v.memberId}
+              imgNum={v.profileImg}
+              label={`#${v.tag}`}
             >
-              <div className="flex gap-2">
-                <ProfileIcon imgNum={v.profileImg} />
-                <div>
-                  <p className="font-semibold">{v.name}</p>
-                  <p className="text-sm text-gray-500">#{v.tag}</p>
-                </div>
-              </div>
-
               <Button
                 className="p-1!"
                 onClick={() => likeFriend.mutate({ memberId: v.memberId })}
@@ -102,7 +92,7 @@ hover:bg-gray-200"
                   className={cn("stroke-[1.5] text-violet-600", v.liked && "fill-violet-300")}
                 />
               </Button>
-            </li>
+            </Friend>
           );
         })}
       </ul>

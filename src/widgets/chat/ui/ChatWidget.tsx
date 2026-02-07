@@ -11,7 +11,7 @@ import { Button } from "@/shared/ui/button";
 
 import { CHAT_HISTORY_QUERY_KEYS, CHAT_LIST_QUERY_KEYS, ViewType } from "@/entities/chat";
 
-import { LoginRequiredModal } from "@/features/auth";
+import { useAuthStore } from "@/features/auth";
 import {
   Chat,
   ChatroomList,
@@ -23,13 +23,13 @@ import {
 
 export function ChatWidget() {
   const [isOpen, setIsOpen] = useState(false);
-  const [isOpenLoginRequiredModal, setIsOpenLoginRequiredModal] = useState(false);
   const [type, setType] = useState<ViewType>("친구 목록");
   const [unReadMessageCount, setUnReadMessageCount] = useState(0);
   const { data: friendList } = useFriendListQuery();
   const { data: chatList } = useChatListQuery();
   const status = useChatStore((s) => s.status);
   const uuid = useChatStore((s) => s.uuid);
+  const setIsOpenLoginRequiredModal = useAuthStore((s) => s.setIsOpenLoginRequiredModal);
   const msg = useTriggerSocketEvent("chat-message");
   const { socket } = useSocketContext();
   const queryClient = useQueryClient();
@@ -147,12 +147,6 @@ overflow-y-scroll rounded-2xl border border-gray-200 bg-white shadow-lg"
               uuid={uuid}
             />
           )}
-        </div>
-      )}
-
-      {isOpenLoginRequiredModal && (
-        <div onClick={() => setIsOpenLoginRequiredModal(false)}>
-          <LoginRequiredModal routeBack={false} />
         </div>
       )}
     </>

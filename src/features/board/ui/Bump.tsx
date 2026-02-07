@@ -1,16 +1,15 @@
 "use client";
 
 import { ChevronsUp } from "lucide-react";
-import { useState } from "react";
 
 import { clientSideOpenapiClient } from "@/shared/api/clientSideOpenapiClient";
 import { toastMessage } from "@/shared/model";
 import { Button } from "@/shared/ui/button";
 
-import { LoginRequiredModal, useAuthStore } from "@/features/auth";
+import { useAuthStore } from "@/features/auth";
 
 export function Bump() {
-  const [isOpen, setIsOpen] = useState(false);
+  const setIsOpenLoginRequiredModal = useAuthStore((s) => s.setIsOpenLoginRequiredModal);
   const accessToken = useAuthStore((s) => s.accessToken);
 
   return (
@@ -19,7 +18,7 @@ export function Bump() {
         className="bold-14 flex items-center gap-[4px] hover:-translate-y-2 hover:bg-gray-200"
         onClick={async () => {
           if (!accessToken) {
-            setIsOpen(true);
+            setIsOpenLoginRequiredModal(true);
             return;
           }
 
@@ -41,12 +40,6 @@ export function Bump() {
           내가 쓴 글 끌어올리기
         </span>
       </Button>
-
-      {isOpen && (
-        <div onClick={() => setIsOpen(false)}>
-          <LoginRequiredModal routeBack={false} />
-        </div>
-      )}
     </div>
   );
 }

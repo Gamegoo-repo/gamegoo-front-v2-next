@@ -23,14 +23,14 @@ import {
 
 export function ChatWidget() {
   const [isOpen, setIsOpen] = useState(false);
-  const [type, setType] = useState<ViewType>("친구 목록");
+  const [viewType, setViewType] = useState<ViewType>("친구 목록");
   const [unReadMessageCount, setUnReadMessageCount] = useState(0);
   const { data: friendList } = useFriendListQuery();
   const { data: chatList } = useChatListQuery();
   const status = useChatStore((s) => s.status);
   const uuid = useChatStore((s) => s.uuid);
   const setIsOpenLoginRequiredModal = useAuthStore((s) => s.setIsOpenLoginRequiredModal);
-  const msg = useTriggerSocketEvent("chat-message");
+  const messageTrigger = useTriggerSocketEvent("chat-message");
   const { socket } = useSocketContext();
   const queryClient = useQueryClient();
 
@@ -49,13 +49,11 @@ export function ChatWidget() {
     queryClient.invalidateQueries({
       queryKey: CHAT_LIST_QUERY_KEYS.all
     });
-  }, [chatList]);
 
-  useEffect(() => {
     setUnReadMessageCount(
       chatList?.map((v) => v.notReadMsgCnt).reduce((acc, cur) => acc + cur) ?? 0
     );
-  }, [msg]);
+  }, [messageTrigger, chatList]);
 
   useEffect(() => {
     const detectPressEnter = (e: KeyboardEvent) => {
@@ -117,25 +115,25 @@ overflow-y-scroll rounded-2xl border border-gray-200 bg-white shadow-lg"
                   <Button
                     className={cn(
                       "h-fit rounded-none border-b-3 border-transparent p-0",
-                      type === "친구 목록" && "border-b-3 border-violet-600"
+                      viewType === "친구 목록" && "border-b-3 border-violet-600"
                     )}
-                    onClick={() => setType("친구 목록")}
+                    onClick={() => setViewType("친구 목록")}
                   >
                     친구 목록
                   </Button>
                   <Button
                     className={cn(
                       "h-fit rounded-none border-b-3 border-transparent p-0",
-                      type === "채팅방" && "border-b-3 border-violet-600"
+                      viewType === "채팅방" && "border-b-3 border-violet-600"
                     )}
-                    onClick={() => setType("채팅방")}
+                    onClick={() => setViewType("채팅방")}
                   >
                     채팅방
                   </Button>
                 </div>
               </header>
 
-              {type === "친구 목록" ? (
+              {viewType === "친구 목록" ? (
                 <Friends friendList={friendList} />
               ) : (
                 <ChatroomList chatList={chatList} />

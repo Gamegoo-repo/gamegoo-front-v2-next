@@ -161,7 +161,7 @@ export function Chat({ socket, uuid }: ChatProps) {
       </header>
 
       <ul
-        className="h-full overflow-y-scroll px-3 pt-3 last:bg-blue-200"
+        className="h-full overflow-y-scroll px-3 pt-3"
         ref={chatRef}
       >
         {messagesWithHistory.map((v, i) => {

@@ -78,6 +78,8 @@ export function ChatWidget() {
     return () => window.removeEventListener("keydown", detectPressEnter);
   }, []);
 
+  if (!friendList || !chatList) return null;
+
   return (
     <>
       <div className="relative size-20">
@@ -106,7 +108,7 @@ border border-violet-300 bg-violet-200 text-lg"
         )}
       </div>
 
-      {isOpen && friendList && chatList && (
+      {isOpen && (
         <div
           className="fixed right-8 bottom-32 h-[720px] max-h-[75dvh] w-[420px] space-y-2
 overflow-y-scroll rounded-2xl border border-gray-200 bg-white shadow-lg"

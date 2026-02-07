@@ -49,13 +49,11 @@ export function ChatWidget() {
     queryClient.invalidateQueries({
       queryKey: CHAT_LIST_QUERY_KEYS.all
     });
-  }, [chatList]);
 
-  useEffect(() => {
     setUnReadMessageCount(
       chatList?.map((v) => v.notReadMsgCnt).reduce((acc, cur) => acc + cur) ?? 0
     );
-  }, [msg]);
+  }, [msg, chatList]);
 
   useEffect(() => {
     const detectPressEnter = (e: KeyboardEvent) => {

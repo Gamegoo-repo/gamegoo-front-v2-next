@@ -4,12 +4,12 @@ import { useQueryClient } from "@tanstack/react-query";
 import { MessageSquare, X } from "lucide-react";
 import { useEffect, useState } from "react";
 
-import { useSocketEvent } from "@/shared/hooks/socket/useSocketEvent";
+import { useTriggerSocketEvent } from "@/shared/hooks/socket/useTriggerSocketEvent";
 import { cn } from "@/shared/libs/cn";
 import { useSocketContext } from "@/shared/libs/socket/SocketContext";
 import { Button } from "@/shared/ui/button";
 
-import { CHAT_HISTORY_QUERY_KEYS, CHAT_LIST_QUERY_KEYS } from "@/entities/chat";
+import { CHAT_HISTORY_QUERY_KEYS, CHAT_LIST_QUERY_KEYS, ViewType } from "@/entities/chat";
 
 import { LoginRequiredModal } from "@/features/auth";
 import {
@@ -24,17 +24,19 @@ import {
 export function ChatWidget() {
   const [isOpen, setIsOpen] = useState(false);
   const [isOpenLoginRequiredModal, setIsOpenLoginRequiredModal] = useState(false);
-  const [type, setType] = useState<"친구 목록" | "채팅방">("친구 목록");
+  const [type, setType] = useState<ViewType>("친구 목록");
   const [unReadMessageCount, setUnReadMessageCount] = useState(0);
   const { data: friendList } = useFriendListQuery();
   const { data: chatList } = useChatListQuery();
   const status = useChatStore((s) => s.status);
   const uuid = useChatStore((s) => s.uuid);
-  const msg = useSocketEvent("chat-message");
+  const msg = useTriggerSocketEvent("chat-message");
   const { socket } = useSocketContext();
   const queryClient = useQueryClient();
 
   useEffect(() => {
+    if (!isOpen) return;
+
     queryClient.invalidateQueries({
       queryKey: CHAT_LIST_QUERY_KEYS.all
     });
@@ -47,11 +49,13 @@ export function ChatWidget() {
     queryClient.invalidateQueries({
       queryKey: CHAT_LIST_QUERY_KEYS.all
     });
+  }, [chatList]);
 
+  useEffect(() => {
     setUnReadMessageCount(
       chatList?.map((v) => v.notReadMsgCnt).reduce((acc, cur) => acc + cur) ?? 0
     );
-  }, [msg, chatList]);
+  }, [msg]);
 
   useEffect(() => {
     const detectPressEnter = (e: KeyboardEvent) => {

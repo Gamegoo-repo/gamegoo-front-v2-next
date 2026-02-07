@@ -1,5 +1,6 @@
 import { formatTime } from "@/shared/libs/date/formatTime";
 
+import { ViewType } from "@/entities/chat";
 import { ProfileIcon } from "@/entities/profile";
 
 import { useStartChatMutation } from "@/features/chat";
@@ -13,7 +14,7 @@ type FriendProps = {
   tag?: string;
   lastMsgAt?: string;
   children: React.ReactNode;
-  type: "친구 목록" | "채팅방";
+  type: ViewType;
 };
 
 export function Friend({ memberId, imgNum, name, label, lastMsgAt, type, children }: FriendProps) {

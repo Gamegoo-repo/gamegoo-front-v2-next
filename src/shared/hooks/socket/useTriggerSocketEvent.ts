@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 
 import { useSocketContext } from "@/shared/libs/socket/SocketContext";
 
-export function useSocketEvent<T>(eventName: string) {
+export function useTriggerSocketEvent<T>(eventName: string) {
   const { socket } = useSocketContext();
   const [data, setData] = useState<T | null>(null);
 

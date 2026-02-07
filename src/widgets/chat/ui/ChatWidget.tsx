@@ -28,13 +28,19 @@ export function ChatWidget() {
   const [isOpen, setIsOpen] = useState(false);
   const [viewType, setViewType] = useState<ViewType>("친구 목록");
   const [unReadMessageCount, setUnReadMessageCount] = useState(0);
+
   const { data: friendList } = useFriendListQuery();
   const { data: chatList } = useChatListQuery();
+
+  const { socket } = useSocketContext();
+
+  const messageTrigger = useTriggerSocketEvent("chat-message");
+
+  const authStatus = useAuthStore((s) => s.authStatus);
   const status = useChatStore((s) => s.status);
   const uuid = useChatStore((s) => s.uuid);
   const setIsOpenLoginRequiredModal = useAuthStore((s) => s.setIsOpenLoginRequiredModal);
-  const messageTrigger = useTriggerSocketEvent("chat-message");
-  const { socket } = useSocketContext();
+
   const queryClient = useQueryClient();
 
   // 모달이 열릴 때 채팅 목록 및 기록의 캐시를 무효화하여 새로운 데이터를 렌더링하도록 하는 useEffect
@@ -47,7 +53,7 @@ export function ChatWidget() {
     queryClient.invalidateQueries({
       queryKey: CHAT_HISTORY_QUERY_KEYS.all
     });
-  }, [isOpen]);
+  }, [isOpen, queryClient]);
 
   // 메시지가 수신되면 새로운 chatList 객체를 받아와 렌더링하는 useEffect
   // -> chatList 내부에 읽지 않은 메시지를 카운트하는 프로퍼티가 있음
@@ -59,7 +65,7 @@ export function ChatWidget() {
     setUnReadMessageCount(
       chatList?.map((v) => v.notReadMsgCnt).reduce((acc, cur) => acc + cur) ?? 0
     );
-  }, [messageTrigger, chatList]);
+  }, [messageTrigger, chatList, queryClient]);
 
   // ESC를 눌렀을 때 메시지 모달이 닫히게 하는 useEffect
   useEffect(() => {
@@ -79,13 +85,12 @@ export function ChatWidget() {
           className="fixed right-8 bottom-8 size-20 rounded-full bg-violet-600"
           onClick={() => {
             // 로그인하지 않은 사용자는 LoginRequiredModal을 띄우고 모달이 열리는 것을 막음
-            if (friendList) {
-              setIsOpen(!isOpen);
-
+            if (authStatus !== "authenticated") {
+              setIsOpenLoginRequiredModal(true);
               return;
             }
 
-            setIsOpenLoginRequiredModal(true);
+            setIsOpen(!isOpen);
           }}
         >
           <MessageSquare className="size-8 stroke-[1.5] text-white" />

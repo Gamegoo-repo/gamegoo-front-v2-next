@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { Socket } from "socket.io-client";
 
 import { SOCKET_EVENTS } from "@/shared/constants/socketEvents";
@@ -27,20 +27,23 @@ interface FriendStatus extends BaseAndTimeStamp {
 export const useFriendStatus = (socket: Socket | null) => {
   const { setOnlineFriendsIds } = useFriendStore();
 
-  const HANDLERS = {
-    [SOCKET_EVENTS.FRIEND.LIST]: (response: InitOnlineFriendList) =>
-      setOnlineFriendsIds(response.data.onlineFriendMemberIdList),
-    [SOCKET_EVENTS.FRIEND.ONLINE]: (response: FriendStatus) => {
-      const memberId = response.data.memberId;
+  const HANDLERS = useMemo(
+    () => ({
+      [SOCKET_EVENTS.FRIEND.LIST]: (response: InitOnlineFriendList) =>
+        setOnlineFriendsIds(response.data.onlineFriendMemberIdList),
+      [SOCKET_EVENTS.FRIEND.ONLINE]: (response: FriendStatus) => {
+        const memberId = response.data.memberId;
 
-      setOnlineFriendsIds((prev) => [...prev.filter((v) => v !== memberId), memberId]);
-    },
-    [SOCKET_EVENTS.FRIEND.OFFLINE]: (response: FriendStatus) => {
-      const memberId = response.data.memberId;
+        setOnlineFriendsIds((prev) => [...prev.filter((v) => v !== memberId), memberId]);
+      },
+      [SOCKET_EVENTS.FRIEND.OFFLINE]: (response: FriendStatus) => {
+        const memberId = response.data.memberId;
 
-      setOnlineFriendsIds((prev) => prev.filter((v) => v !== memberId));
-    }
-  };
+        setOnlineFriendsIds((prev) => prev.filter((v) => v !== memberId));
+      }
+    }),
+    [socket, setOnlineFriendsIds]
+  );
 
   useEffect(() => {
     if (!socket) return;

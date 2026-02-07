@@ -23,8 +23,14 @@ export function Friend({ memberId, imgNum, name, label, lastMsgAt, type, childre
 
   return (
     <li
-      className="flex cursor-pointer items-center justify-between rounded-lg p-2 hover:bg-gray-200"
+      className="a11y-focus-visible flex cursor-pointer items-center justify-between rounded-lg p-2
+outline-none hover:bg-gray-200"
       onClick={() => startChat.mutate({ memberId })}
+      tabIndex={0}
+      role="button"
+      onKeyDown={(e) => {
+        if (e.key === "Enter") startChat.mutate({ memberId });
+      }}
     >
       <div className="flex w-full gap-2">
         <ProfileIcon imgNum={imgNum} />
@@ -37,6 +43,7 @@ export function Friend({ memberId, imgNum, name, label, lastMsgAt, type, childre
               )}
             </div>
           </div>
+
           <p className="flex flex-1 justify-between text-sm text-gray-500">
             <span>{label}</span>
             <span className="text-xs">{type === "채팅방" ? formatTime(lastMsgAt!) : ""}</span>

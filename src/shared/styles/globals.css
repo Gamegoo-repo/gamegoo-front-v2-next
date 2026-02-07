@@ -271,4 +271,8 @@
       transform: rotate(-360deg);
     }
   }
+
+  .a11y-focus-visible {
+    @apply focus-visible:ring-[3px] focus-visible:ring-violet-600;
+  }
 }

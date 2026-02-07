@@ -14,6 +14,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger
 } from "@/shared/ui/dropdown-menu";
+import { Textarea } from "@/shared/ui/textarea";
 
 import { CHAT_HISTORY_QUERY_KEYS, CHAT_LIST_QUERY_KEYS, useChat } from "@/entities/chat";
 import { ProfileIcon } from "@/entities/profile";
@@ -90,7 +91,8 @@ export function Chat({ socket, uuid }: ChatProps) {
       <header className="flex items-center justify-between border-b border-violet-300 px-3 pb-4">
         <div className="flex items-center gap-2">
           <Button
-            className="p-1! hover:bg-gray-200"
+            variant="ghost"
+            size="icon"
             onClick={() => {
               setStatus("INACTIVE");
 
@@ -108,10 +110,12 @@ export function Chat({ socket, uuid }: ChatProps) {
           <div className="flex items-center gap-2">
             <ProfileIcon imgNum={data.memberProfileImg} />
 
-            <div>
+            <div className="space-y-1">
               <div className="flex items-center gap-4 py-0! font-semibold">
                 <Button
-                  className="h-fit p-0! text-base!"
+                  className="p-0 focus-visible:ring-0!"
+                  variant="ghost"
+                  tabIndex={-1}
                   onClick={() => {
                     navigator.clipboard.writeText(`${data.gameName}#${data.tag}`);
                     toastMessage.success("소환사명이 복사되었습니다.");
@@ -134,7 +138,10 @@ export function Chat({ socket, uuid }: ChatProps) {
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button className="p-1! hover:bg-gray-200">
+            <Button
+              variant="ghost"
+              size="icon"
+            >
               <EllipsisVertical className="size-5!" />
             </Button>
           </DropdownMenuTrigger>
@@ -161,7 +168,7 @@ export function Chat({ socket, uuid }: ChatProps) {
       </header>
 
       <ul
-        className="h-full overflow-y-scroll px-3 pt-3"
+        className="h-full overflow-y-scroll px-3 pt-3 outline-none focus-visible:bg-violet-300"
         ref={chatRef}
       >
         {messagesWithHistory.map((v, i) => {
@@ -229,8 +236,8 @@ export function Chat({ socket, uuid }: ChatProps) {
       </ul>
 
       <footer className="mt-auto bg-white p-3">
-        <textarea
-          className="block h-18 w-full resize-none border-none outline-none"
+        <Textarea
+          className="h-18"
           maxLength={1000}
           value={input}
           autoFocus
@@ -247,10 +254,12 @@ export function Chat({ socket, uuid }: ChatProps) {
             }
           }}
         />
-        <div className="flex items-center justify-between">
+        <div className="flex items-end justify-between">
           <p className="text-xs text-violet-600">{input.length} / 1000</p>
+
           <Button
-            className="rounded-full bg-violet-600 p-4 text-white hover:bg-violet-500"
+            className="rounded-full"
+            size="lg"
             onClick={() => {
               if (input.trim().length > 0) sendMessage(input.trim());
               setInput("");

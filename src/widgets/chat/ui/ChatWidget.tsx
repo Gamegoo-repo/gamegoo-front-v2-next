@@ -2,7 +2,7 @@
 
 import { useQueryClient } from "@tanstack/react-query";
 import { MessageSquare, X } from "lucide-react";
-import { useEffect, useState } from "react";
+import { Dispatch, SetStateAction, useEffect, useState } from "react";
 
 import { useTriggerSocketEvent } from "@/shared/hooks/socket/useTriggerSocketEvent";
 import { cn } from "@/shared/libs/cn";
@@ -119,32 +119,25 @@ overflow-y-scroll rounded-2xl border border-gray-200 bg-white shadow-lg"
                 <div className="flex items-center justify-between">
                   <p className="bold-20">메신저</p>
                   <Button
-                    className="p-1! hover:bg-gray-200"
+                    variant="ghost"
+                    size="icon"
                     onClick={() => setIsOpen(false)}
                   >
                     <X />
                   </Button>
                 </div>
 
-                <div className="flex space-x-8 **:font-bold">
-                  <Button
-                    className={cn(
-                      "h-fit rounded-none border-b-3 border-transparent p-0",
-                      viewType === "친구 목록" && "border-b-3 border-violet-600"
-                    )}
-                    onClick={() => setViewType("친구 목록")}
-                  >
-                    친구 목록
-                  </Button>
-                  <Button
-                    className={cn(
-                      "h-fit rounded-none border-b-3 border-transparent p-0",
-                      viewType === "채팅방" && "border-b-3 border-violet-600"
-                    )}
-                    onClick={() => setViewType("채팅방")}
-                  >
-                    채팅방
-                  </Button>
+                <div className="flex space-x-4">
+                  <ViewTypeComp
+                    viewType={viewType}
+                    label="친구 목록"
+                    setViewType={setViewType}
+                  />
+                  <ViewTypeComp
+                    viewType={viewType}
+                    label="채팅방"
+                    setViewType={setViewType}
+                  />
                 </div>
               </header>
 
@@ -163,5 +156,34 @@ overflow-y-scroll rounded-2xl border border-gray-200 bg-white shadow-lg"
         </div>
       )}
     </>
+  );
+}
+
+type ViewTypeCompProps = {
+  label: ViewType;
+  viewType: ViewType;
+  setViewType: Dispatch<SetStateAction<ViewType>>;
+};
+
+function ViewTypeComp({ label, viewType, setViewType }: ViewTypeCompProps) {
+  return (
+    <div>
+      <Button
+        className="peer/view-type font-bold"
+        variant="ghost"
+        onClick={() => setViewType(label)}
+      >
+        {label}
+      </Button>
+
+      <hr
+        className={cn(
+          viewType === label
+            ? "mx-auto border border-violet-600 peer-focus-visible/view-type:border-transparent"
+            : "hidden",
+          viewType === "친구 목록" ? "w-4/5" : "w-3/4"
+        )}
+      />
+    </div>
   );
 }

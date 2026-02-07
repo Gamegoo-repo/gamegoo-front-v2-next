@@ -21,6 +21,9 @@ import {
   useFriendListQuery
 } from "@/features/chat";
 
+/**
+ * 우측 하단 메시지 버튼을 렌더링하는 컴포넌트
+ */
 export function ChatWidget() {
   const [isOpen, setIsOpen] = useState(false);
   const [viewType, setViewType] = useState<ViewType>("친구 목록");
@@ -34,6 +37,7 @@ export function ChatWidget() {
   const { socket } = useSocketContext();
   const queryClient = useQueryClient();
 
+  // 모달이 열릴 때 채팅 목록 및 기록의 캐시를 무효화하여 새로운 데이터를 렌더링하도록 하는 useEffect
   useEffect(() => {
     if (!isOpen) return;
 
@@ -45,6 +49,8 @@ export function ChatWidget() {
     });
   }, [isOpen]);
 
+  // 메시지가 수신되면 새로운 chatList 객체를 받아와 렌더링하는 useEffect
+  // -> chatList 내부에 읽지 않은 메시지를 카운트하는 프로퍼티가 있음
   useEffect(() => {
     queryClient.invalidateQueries({
       queryKey: CHAT_LIST_QUERY_KEYS.all
@@ -55,6 +61,7 @@ export function ChatWidget() {
     );
   }, [messageTrigger, chatList]);
 
+  // ESC를 눌렀을 때 메시지 모달이 닫히게 하는 useEffect
   useEffect(() => {
     const detectPressEnter = (e: KeyboardEvent) => {
       if (e.key === "Escape") setIsOpen(false);
@@ -71,6 +78,7 @@ export function ChatWidget() {
         <Button
           className="fixed right-8 bottom-8 size-20 rounded-full bg-violet-600"
           onClick={() => {
+            // 로그인하지 않은 사용자는 LoginRequiredModal을 띄우고 모달이 열리는 것을 막음
             if (friendList) {
               setIsOpen(!isOpen);
 

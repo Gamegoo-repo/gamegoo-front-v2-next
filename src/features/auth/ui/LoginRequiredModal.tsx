@@ -22,7 +22,7 @@ export function LoginRequiredModal({ routeBack = false }) {
     <>
       {isOpenLoginRequiredModal && (
         <div
-          className="fixed inset-0 z-10 h-dvh w-dvw bg-gray-800/50"
+          className="fixed inset-0 z-[100] h-dvh w-dvw bg-gray-800/50"
           onClick={handleOnClick}
         >
           <div

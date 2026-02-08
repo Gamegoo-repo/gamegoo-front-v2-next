@@ -31,12 +31,16 @@ export function Chat({ socket, uuid }: ChatProps) {
   const [input, setInput] = useState("");
   const [isAtBottom, setIsAtBottom] = useState(true);
   const [hasScroll, setHasScroll] = useState(false);
+
   const chatRef = useRef<HTMLUListElement | null>(null);
   const bottomRef = useRef<HTMLDivElement | null>(null);
-  const { messages, sendMessage } = useChat(socket, uuid);
+
   const setStatus = useChatStore((s) => s.setStatus);
   const data = useChatStore((s) => s.data);
   const onlineFriendsIds = useFriendStore((s) => s.onlineFriendsIds);
+
+  const { messages, sendMessage } = useChat(socket, uuid);
+
   const { data: chatHistory } = useChatHistoryQuery(uuid);
   const exitChat = useExitChatMutation();
   const queryClient = useQueryClient();
@@ -168,7 +172,8 @@ export function Chat({ socket, uuid }: ChatProps) {
       </header>
 
       <ul
-        className="h-full overflow-y-scroll px-3 pt-3 outline-none focus-visible:bg-violet-300"
+        className="group/chat h-full overflow-y-scroll px-3 pt-3 outline-none
+focus-visible:bg-violet-300"
         ref={chatRef}
       >
         {messagesWithHistory.map((v, i) => {
@@ -176,9 +181,25 @@ export function Chat({ socket, uuid }: ChatProps) {
           const prevDate =
             i > 0 ? format(new Date(messagesWithHistory[i - 1].createdAt), "yyyy-MM-dd") : null;
           const isNewDay = currentDate !== prevDate;
+          const currentTimeStamp = new Date(v.timestamp).toLocaleString("ko-KR", {
+            hour: "numeric",
+            minute: "numeric",
+            hour12: true
+          });
+          const nextTimeStamp = new Date(messagesWithHistory[i + 1]?.timestamp).toLocaleString(
+            "ko-KR",
+            {
+              hour: "numeric",
+              minute: "numeric",
+              hour12: true
+            }
+          );
 
           return (
-            <li key={`${v.timestamp}-${i}`}>
+            <li
+              key={`${v.timestamp}-${i}`}
+              className={cn(nextTimeStamp !== currentTimeStamp && "pb-3")}
+            >
               {isNewDay && (
                 <div className="my-2 text-center">
                   <span className="rounded-md bg-gray-200 px-4 py-0.5 text-sm">
@@ -208,7 +229,12 @@ export function Chat({ socket, uuid }: ChatProps) {
                     v.senderName !== data.gameName && hasScroll && "pr-2"
                   )}
                 >
-                  <div className="flex h-full items-end text-[10px] text-violet-400">
+                  <div
+                    className={cn(
+                      "flex h-full items-end text-[10px] text-violet-400",
+                      nextTimeStamp === currentTimeStamp && "invisible"
+                    )}
+                  >
                     {new Date(v.timestamp).toLocaleString("ko-KR", {
                       hour: "numeric",
                       minute: "numeric",
@@ -229,10 +255,7 @@ export function Chat({ socket, uuid }: ChatProps) {
           );
         })}
 
-        <div
-          className="pb-2"
-          ref={bottomRef}
-        />
+        <div ref={bottomRef} />
       </ul>
 
       <footer className="mt-auto bg-white p-3">

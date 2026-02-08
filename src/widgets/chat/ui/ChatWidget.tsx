@@ -78,6 +78,16 @@ export function ChatWidget() {
     return () => window.removeEventListener("keydown", detectPressEnter);
   }, []);
 
+  useEffect(() => {
+    if (!isOpen) return;
+
+    document.body.style.overflow = "hidden";
+
+    return () => {
+      document.body.style.overflow = "auto";
+    };
+  }, [isOpen]);
+
   if (!friendList || !chatList) return null;
 
   return (

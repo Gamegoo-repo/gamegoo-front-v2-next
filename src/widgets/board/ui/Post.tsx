@@ -1,17 +1,13 @@
 "use client";
 
-import { useQueryClient } from "@tanstack/react-query";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 
-import { clientSideOpenapiClient } from "@/shared/api/clientSideOpenapiClient";
 import { cn } from "@/shared/libs/cn";
-import { toastMessage } from "@/shared/model";
 import { Button } from "@/shared/ui/button";
 
-import { POST_QUERYKEYS } from "@/entities/post/constants/post.queryKeys";
+import { UserInfo } from "@/entities/auth";
 
-import { useAuthStore } from "@/features/auth";
 import {
   BoardData,
   Comment,
@@ -23,19 +19,18 @@ import {
   SelectGameStyle,
   WantPosition
 } from "@/features/board";
-import { useFetchProfileQuery } from "@/features/profile/model/hooks/queries/useFetchProfileQuery";
+import { useEditPostMutation } from "@/features/post/model/hooks/queries/useEditPostMutation";
+import { usePostMutation } from "@/features/post/model/hooks/queries/usePostMutation";
 
 type PostProps = {
-  postData?: BoardData;
   boardId?: string;
+  postData: BoardData;
+  userInfo: UserInfo;
 };
 
-export function Post({ postData, boardId }: PostProps) {
-  const { data: userInfo } = useFetchProfileQuery();
-  const router = useRouter();
-  const queryClient = useQueryClient();
-  const accessToken = useAuthStore((s) => s.accessToken);
-  const searchParams = useSearchParams();
+export function Post({ boardId, postData, userInfo }: PostProps) {
+  const editPost = useEditPostMutation();
+  const post = usePostMutation();
 
   const methods = useForm<PostForm>({
     mode: "onChange",
@@ -53,8 +48,25 @@ export function Post({ postData, boardId }: PostProps) {
 
   const {
     handleSubmit,
-    formState: { isValid }
+    formState: { isValid },
+    reset
   } = methods;
+
+  // postData가 있으면 form 업데이트
+  useEffect(() => {
+    if (postData) {
+      reset({
+        mainPosition: postData.mainP,
+        subPosition: postData.subP,
+        wantMainPosition: postData.wantP[0],
+        wantSubPosition: postData.wantP[1],
+        gameMode: postData.gameMode,
+        gameStyles: postData.gameStyles,
+        mic: postData.mike,
+        comment: postData.contents
+      });
+    }
+  }, [postData, reset]);
 
   const handleOnSubmit = async (data: PostForm) => {
     const body = {
@@ -67,29 +79,14 @@ export function Post({ postData, boardId }: PostProps) {
       contents: data.comment
     };
 
+    // -> 글을 수정할 때
     if (postData) {
-      const { error } = await clientSideOpenapiClient.PUT("/api/v2/posts/{boardId}", {
-        params: {
-          path: {
-            boardId: Number(boardId)
-          }
-        },
-        body
-      });
-
-      if (error) throw new Error("에러남 포스트 수정에서");
-
+      editPost.mutate({ body, boardId: Number(boardId!) });
       return;
     }
 
-    const { error } = await clientSideOpenapiClient.POST("/api/v2/posts", {
-      headers: {
-        Authorization: `Bearer ${accessToken}`
-      },
-      body
-    });
-
-    if (error) toastMessage.error("이미 글이 있다!!");
+    // -> 글을 작성할 때
+    post.mutate({ body });
   };
 
   if (!userInfo) return null;
@@ -158,18 +155,6 @@ export function Post({ postData, boardId }: PostProps) {
               className={cn("h-[58px] w-full bg-violet-400 text-white", isValid && "bg-violet-600")}
               type="submit"
               disabled={!isValid}
-              onClick={() => {
-                if (postData) {
-                  toastMessage.success("게시물이 수정되었습니다.");
-                } else {
-                  toastMessage.success("게시물이 작성되었습니다.");
-                }
-
-                queryClient.invalidateQueries({
-                  queryKey: [POST_QUERYKEYS.PostList, { page: 1 }]
-                });
-                router.replace(`/board/?page=${searchParams.get("page")}`);
-              }}
             >
               작성 완료
             </Button>

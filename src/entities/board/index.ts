@@ -9,3 +9,5 @@ export { WinRate } from "./ui/WinRate";
 export { Comments } from "./ui/Comments";
 export { SelectPosition } from "./ui/SelectPosition";
 export { GameStyle } from "./ui/GameStyle";
+
+export { createdAtFormat } from "./model/createdAtFormat";

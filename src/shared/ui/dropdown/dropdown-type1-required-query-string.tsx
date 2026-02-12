@@ -20,6 +20,7 @@ export function DropdownType1RequiredQueryString({ values, queryString }: Dropdo
       params.delete(queryString);
     } else {
       params.set(queryString, value);
+      params.set("page", "1");
     }
 
     router.push(`?${params.toString()}`);

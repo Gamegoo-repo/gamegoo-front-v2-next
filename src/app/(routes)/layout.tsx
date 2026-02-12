@@ -3,8 +3,7 @@ import { Toaster } from "sonner";
 
 import "@/shared/styles/globals.css";
 
-import InitAuthProvider from "@/app/providers/init-auth";
-import { ReactQueryProvider } from "@/app/providers/react-query";
+import { ReactQueryProvider } from "@/app/providers/ReactQueryProvider";
 
 export const metadata: Metadata = {
   title: "겜구 - 롤 실시간 듀오 매칭 | GAMEGOO",
@@ -13,23 +12,21 @@ export const metadata: Metadata = {
   }
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children
 }: Readonly<{
   children: React.ReactNode;
 }>) {
   return (
     <ReactQueryProvider>
-      <InitAuthProvider>
-        <html lang="ko">
-          <body>{children}</body>
-        </html>
+      <html lang="ko">
+        <body>{children}</body>
+      </html>
 
-        <Toaster
-          className="z-50"
-          richColors={true}
-        />
-      </InitAuthProvider>
+      <Toaster
+        className="z-50"
+        richColors={true}
+      />
     </ReactQueryProvider>
   );
 }

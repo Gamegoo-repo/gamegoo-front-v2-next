@@ -11,9 +11,9 @@ min-w-0 rounded-lg border border-gray-300 bg-gray-100 px-3 py-1 text-base shadow
 transition-[color,box-shadow] outline-none file:inline-flex file:h-7 file:border-0
 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none
 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm`,
-        "focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-violet-600",
+        "a11y-focus-within",
         `aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40
-aria-invalid:border-destructive focus-visible:border-violet-600`,
+aria-invalid:border-destructive`,
         className
       )}
       type={type}

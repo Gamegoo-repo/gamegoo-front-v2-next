@@ -86,7 +86,7 @@ function FriendListMap({ friendList, label }: FriendListMapProps) {
               label={`#${v.tag}`}
             >
               <Button
-                size="icon"
+                size="icon-sm"
                 variant="ghost"
                 onClick={(e) => {
                   e.stopPropagation();

@@ -94,7 +94,7 @@ export function ChatWidget() {
     <>
       <div className="relative size-20">
         <Button
-          className="fixed right-8 bottom-8 size-20 rounded-full bg-violet-600"
+          className="fixed size-20 rounded-full bg-violet-600"
           onClick={() => {
             // 로그인하지 않은 사용자는 LoginRequiredModal을 띄우고 모달이 열리는 것을 막음
             if (authStatus !== "authenticated") {
@@ -189,7 +189,8 @@ function ViewTypeComp({ label, viewType, setViewType }: ViewTypeCompProps) {
       <hr
         className={cn(
           viewType === label
-            ? "mx-auto border border-violet-600 peer-focus-visible/view-type:border-transparent"
+            ? `mx-auto mt-1 border border-violet-600
+peer-focus-visible/view-type:border-transparent`
             : "hidden",
           viewType === "친구 목록" ? "w-4/5" : "w-3/4"
         )}

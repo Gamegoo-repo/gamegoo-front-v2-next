@@ -198,7 +198,7 @@ focus-visible:bg-violet-300"
           return (
             <li
               key={`${v.timestamp}-${i}`}
-              className={cn(nextTimeStamp !== currentTimeStamp && "pb-3")}
+              className={cn(nextTimeStamp !== currentTimeStamp && "pb-2")}
             >
               {isNewDay && (
                 <div className="my-2 text-center">
@@ -216,7 +216,7 @@ focus-visible:bg-violet-300"
                     )}
                   >
                     <ProfileIcon
-                      size="38px"
+                      size={36}
                       imgNum={Number(v.senderProfileImg)}
                     />
                   </div>
@@ -260,7 +260,7 @@ focus-visible:bg-violet-300"
 
       <footer className="mt-auto bg-white p-3">
         <Textarea
-          className="h-18"
+          className="h-18 p-0"
           maxLength={1000}
           value={input}
           autoFocus

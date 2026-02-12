@@ -3,13 +3,15 @@ import { Button } from "@/shared/ui/button";
 
 export function GameStyle({ gameStyles }: { gameStyles: number[] }) {
   return (
-    <div className="flex flex-wrap gap-[12px]">
+    <div className="flex flex-wrap gap-2">
       {GAME_STYLE.map(
         (v) =>
           gameStyles.includes(v.gameStyleId) && (
             <Button
               key={v.gameStyleId}
-              className="w-fit rounded-full bg-white px-[12px] py-[4px]"
+              className="cursor-default rounded-full border border-gray-300 bg-white hover:bg-white"
+              variant="ghost"
+              tabIndex={-1}
             >
               {v.gameStyleName}
             </Button>

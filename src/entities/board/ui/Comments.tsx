@@ -1,6 +1,6 @@
 export function Comments({ comments }: { comments: string }) {
   return (
-    <div className="regular-18 rounded-[10px] border-[1px] border-gray-400 px-[10px] py-[8px]">
+    <div className="regular-18 rounded-xl border border-gray-300 bg-white px-4 py-2">
       {comments}
     </div>
   );

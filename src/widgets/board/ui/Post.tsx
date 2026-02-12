@@ -1,10 +1,11 @@
 "use client";
 
 import { useEffect } from "react";
-import { FormProvider, useForm } from "react-hook-form";
+import { FormProvider, UseFormReturn, useForm } from "react-hook-form";
 
 import { cn } from "@/shared/libs/cn";
 import { Button } from "@/shared/ui/button";
+import { DialogModal } from "@/shared/ui/dialog";
 
 import { UserInfo } from "@/entities/auth";
 
@@ -94,73 +95,136 @@ export function Post({ boardId, postData, userInfo }: PostProps) {
   return (
     <FormProvider {...methods}>
       <form onSubmit={handleSubmit(handleOnSubmit)}>
-        <ModalContainer userInfo={userInfo}>
-          <div className="mt-[30px] space-y-[30px] *:space-y-[6px]">
-            {/* 포지션 */}
-            <div>
-              <p className="semibold-14">포지션</p>
-              <div className="flex items-center gap-[8px] *:w-1/2">
-                <MainAndSubPosition />
-                <input
-                  type="hidden"
-                  {...methods.register("mainPosition", {
-                    required: true
-                  })}
-                />
-
-                <WantPosition />
-                <input
-                  type="hidden"
-                  {...methods.register("wantMainPosition", {
-                    validate: (_, formValues) =>
-                      formValues.wantMainPosition || formValues.wantSubPosition
-                        ? true
-                        : "원하는 포지션을 하나 이상 선택해주세요"
-                  })}
-                />
-              </div>
-            </div>
-
-            {/* 선호 게임 모드 */}
-            <div>
-              <p className="semibold-14">선호 게임 모드</p>
-              <PreferredGameMode />
-            </div>
-
-            {/* 게임 스타일 */}
-            <div>
-              <p className="semibold-14">게임 스타일</p>
-              <SelectGameStyle />
-              <input
-                type="hidden"
-                {...methods.register("gameStyles", {
-                  validate: (value) => value.length > 0
-                })}
-              />
-            </div>
-
-            {/* 마이크 스위치 */}
-            <div>
-              <p>마이크</p>
-              <MicSwitch />
-            </div>
-
-            {/* 한마디 */}
-            <div>
-              <p>한마디</p>
-              <Comment />
-            </div>
-
-            <Button
-              className={cn("h-[58px] w-full bg-violet-400 text-white", isValid && "bg-violet-600")}
-              type="submit"
-              disabled={!isValid}
-            >
-              작성 완료
-            </Button>
-          </div>
-        </ModalContainer>
+        <DialogModal
+          name={userInfo.gameName}
+          description="글 작성"
+          imgNum={userInfo.profileImg}
+          tag={userInfo.tag}
+          routeBack
+          items={[
+            {
+              id: "position",
+              content: <PositionSection methods={methods} />
+            },
+            {
+              id: "preferredGameMode",
+              content: <PreferredGameModeSection />
+            },
+            {
+              id: "gameStyle",
+              content: <GameStyleSection methods={methods} />
+            },
+            {
+              id: "mic",
+              content: <MicSection />
+            },
+            {
+              id: "comment",
+              content: <CommentSection />
+            },
+            {
+              id: "submit",
+              content: <SubmitSection isValid={isValid} />
+            }
+          ]}
+        />
       </form>
     </FormProvider>
+  );
+}
+
+// eslint-disable-next-line
+type Methods = UseFormReturn<PostForm, any, PostForm>;
+
+function PositionSection({ methods }: { methods: Methods }) {
+  return (
+    <section className="space-y-2">
+      <h3 className="semibold-14">포지션</h3>
+
+      <div className="flex items-center gap-4 *:flex-1">
+        <MainAndSubPosition />
+        <input
+          type="hidden"
+          {...methods.register("mainPosition", {
+            required: true
+          })}
+        />
+
+        <WantPosition />
+        <input
+          type="hidden"
+          {...methods.register("wantMainPosition", {
+            validate: (_, formValues) =>
+              formValues.wantMainPosition || formValues.wantSubPosition
+                ? true
+                : "원하는 포지션을 하나 이상 선택해주세요"
+          })}
+        />
+      </div>
+    </section>
+  );
+}
+
+function PreferredGameModeSection() {
+  return (
+    <section className="space-y-2">
+      <h3 className="semibold-14">선호 게임 모드</h3>
+
+      <div className="flex gap-4">
+        <div className="w-1/2">
+          <PreferredGameMode />
+        </div>
+
+        <div className="invisible w-1/2" />
+      </div>
+    </section>
+  );
+}
+
+function GameStyleSection({ methods }: { methods: Methods }) {
+  return (
+    <section className="space-y-2">
+      <h3 className="semibold-14">게임 스타일</h3>
+
+      <SelectGameStyle />
+      <input
+        type="hidden"
+        {...methods.register("gameStyles", {
+          validate: (value) => value.length > 0
+        })}
+      />
+    </section>
+  );
+}
+
+function MicSection() {
+  return (
+    <section className="space-y-2">
+      <h3 className="semibold-14">마이크</h3>
+
+      <MicSwitch />
+    </section>
+  );
+}
+
+function CommentSection() {
+  return (
+    <section className="space-y-2">
+      <h3>한마디</h3>
+
+      <Comment />
+    </section>
+  );
+}
+
+function SubmitSection({ isValid }: { isValid: boolean }) {
+  return (
+    <Button
+      className={cn("h-14 w-full bg-violet-400 text-white", isValid && "bg-violet-600")}
+      type="submit"
+      disabled={!isValid}
+    >
+      작성 완료
+    </Button>
   );
 }

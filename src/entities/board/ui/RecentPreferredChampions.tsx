@@ -1,11 +1,8 @@
 import Image from "next/image";
 
-import { paths } from "@/shared/api/schema";
 import { cn } from "@/shared/libs/cn";
 
-type ChampionStatsResponseList = NonNullable<
-  paths["/api/v2/posts/list/{boardId}"]["get"]["responses"]["200"]["content"]["*/*"]["data"]
->["championStatsResponseList"];
+import { ChampionStatsResponseList } from "@/entities/board";
 
 export function RecentPreferredChampions({
   championStatsResponseList
@@ -13,17 +10,17 @@ export function RecentPreferredChampions({
   championStatsResponseList: ChampionStatsResponseList;
 }) {
   return (
-    <div className="flex h-[56px] gap-2">
+    <div
+      className="flex h-16 items-center justify-center gap-2 rounded-xl border border-gray-300
+bg-white"
+    >
       {championStatsResponseList.map(({ championName, winRate, championId }) => {
         return (
-          <div
-            key={championId}
-            className="relative"
-          >
+          <div key={championId}>
             <Image
               src={`/champions/${championName.replaceAll(" ", "")}.png`}
-              width={52}
-              height={52}
+              width={42}
+              height={42}
               alt={championName}
             />
             <div

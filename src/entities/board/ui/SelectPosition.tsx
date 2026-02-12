@@ -38,42 +38,47 @@ export function SelectPosition({ label, position }: SelectPositionProps) {
       <PopoverTrigger asChild>
         {PositionIcon ? (
           <Button
-            className="size-[48px]"
+            className="size-10"
             type="button"
+            variant="ghost"
           >
-            <PositionIcon className="w-[48px]" />
+            <PositionIcon className="w-10" />
           </Button>
         ) : (
-          <div className="flex size-[48px] items-center">
+          <div className="flex size-10 items-center">
             <Button
-              className="flex h-[32px] w-[48px] items-center justify-center rounded-full
-bg-violet-100"
+              className="flex items-center justify-center rounded-full border border-gray-300
+bg-violet-100 px-4 py-1.5 hover:bg-violet-200"
+              variant="ghost"
               type="button"
             >
-              <Plus className="size-[16px]" />
+              <Plus className="size-4" />
             </Button>
           </div>
         )}
       </PopoverTrigger>
 
       <PopoverContent
-        className="w-[388px] rounded-[20px] border-none bg-[rgba(0,0,0,0.70)] p-[32px] text-white
-backdrop-blur-[7.5px]"
+        className="w-sm rounded-2xl border-none bg-gray-800/85 p-8 text-white backdrop-blur-xs"
       >
-        <PopoverArrow className="fill-[rgba(0,0,0,0.70)]" />
+        <PopoverArrow className="fill-gray-800/85" />
 
         <PopoverHeader className="space-y-[28px]">
           <PopoverTitle className="sr-only">{label}</PopoverTitle>
 
-          <div className="flex justify-between">
+          <div className="flex items-center justify-between pl-2 text-gray-300">
             <p className="bold-20">{label} 선택</p>
-            <X
-              className="size-[24px] cursor-pointer"
+            <Button
+              className="hover:bg-gray-700"
+              size="icon"
+              variant="ghost"
               onClick={() => setIsOpen(false)}
-            />
+            >
+              <X className="size-5 cursor-pointer" />
+            </Button>
           </div>
 
-          <div className="flex gap-[20px]">
+          <div className="flex gap-4">
             {Object.keys(POSITION_ICONS).map((v) => {
               const Icon = POSITION_ICONS[v as keyof typeof POSITION_ICONS];
 
@@ -81,9 +86,10 @@ backdrop-blur-[7.5px]"
                 <Button
                   key={v}
                   className={cn(
-                    "flex size-[38px] items-center justify-center hover:bg-gray-800",
+                    "flex size-10 items-center justify-center hover:bg-gray-700",
                     selectedPosition === v && "rounded-[6px] bg-violet-600 [&>svg]:text-white"
                   )}
+                  variant="ghost"
                   type="button"
                   onClick={() => {
                     setValue(position, v as keyof typeof POSITION_ICONS, {
@@ -94,7 +100,7 @@ backdrop-blur-[7.5px]"
                     setIsOpen(false);
                   }}
                 >
-                  <Icon className="size-[28px] text-gray-500" />
+                  <Icon className="size-7 text-gray-500" />
                 </Button>
               );
             })}

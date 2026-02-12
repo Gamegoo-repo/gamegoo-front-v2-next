@@ -17,7 +17,7 @@ export function PreferredGameMode({ gameMode }: { gameMode: GameMode }) {
   };
 
   return (
-    <div className="flex h-[56px] gap-1 rounded-[10px] bg-white px-[12px] py-[16px]">
+    <div className="flex h-16 items-center gap-1 rounded-xl border border-gray-300 bg-white px-4">
       <Check className="text-violet-600" />
       <span className="medium-16">{preferredGameMode(gameMode)}</span>
     </div>

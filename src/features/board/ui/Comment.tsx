@@ -2,6 +2,8 @@
 
 import { useFormContext } from "react-hook-form";
 
+import { Textarea } from "@/shared/ui/textarea";
+
 import type { PostForm } from "@/features/board";
 
 export function Comment() {
@@ -11,14 +13,13 @@ export function Comment() {
 
   return (
     <div className="space-y-[6px]">
-      <textarea
+      <Textarea
         maxLength={80}
         {...register("comment", {
           required: true,
           maxLength: 80
         })}
-        className="w-full resize-none rounded-[10px] border-[1px] border-gray-400 px-[10px] py-[8px]
-outline-none"
+        className="max-h-[90px]! w-full border border-gray-300 bg-white py-2 outline-none"
       />
 
       <div className="flex justify-between">

@@ -15,7 +15,7 @@ export function Post() {
   return (
     <div className="shrink-0">
       <Button
-        className="bold-14 h-14 w-60 rounded-2xl"
+        className="bold-14 h-14 w-60 rounded-xl"
         asChild
       >
         <Link

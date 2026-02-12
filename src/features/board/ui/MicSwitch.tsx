@@ -14,9 +14,10 @@ export function MicSwitch() {
   return (
     <Button
       className={cn(
-        "relative h-[42px] w-[70px] rounded-full bg-gray-500 p-[6px]",
-        mic === "AVAILABLE" && "bg-violet-400"
+        "relative h-11 w-18 rounded-full bg-gray-500 p-2 hover:bg-gray-500",
+        mic === "AVAILABLE" && "bg-violet-400 hover:bg-violet-400"
       )}
+      variant="ghost"
       onClick={() =>
         setValue("mic", mic === "AVAILABLE" ? "UNAVAILABLE" : "AVAILABLE", {
           shouldDirty: true,
@@ -27,8 +28,8 @@ export function MicSwitch() {
     >
       <div
         className={cn(
-          "absolute left-[6px] size-[30px] rounded-full bg-white transition-transform duration-300",
-          mic === "AVAILABLE" && "translate-x-[28px]"
+          "absolute left-2 size-8 rounded-full bg-white transition-transform duration-300",
+          mic === "AVAILABLE" && "translate-x-6"
         )}
       />
     </Button>

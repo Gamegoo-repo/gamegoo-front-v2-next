@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 
+import { Button } from "@/shared/ui/button";
+
 import { useAuthStore } from "@/features/auth";
 
 export function Post() {
@@ -12,20 +14,23 @@ export function Post() {
 
   return (
     <div className="shrink-0">
-      <Link
-        href={{
-          pathname: authStatus === "authenticated" ? "/board/post" : "",
-          query: { page: searchParams.get("page") }
-        }}
-        className="bold-14 flex h-[58px] w-[248px] items-center justify-center rounded-[12px]
-bg-violet-600 text-white hover:bg-violet-500"
-        onClick={() => {
-          if (!accessToken) setIsOpenLoginRequiredModal(true);
-        }}
-        scroll={false}
+      <Button
+        className="bold-14 h-14 w-60 rounded-2xl"
+        asChild
       >
-        글 작성하기
-      </Link>
+        <Link
+          href={{
+            pathname: authStatus === "authenticated" ? "/board/post" : "",
+            query: { page: searchParams.get("page") }
+          }}
+          onClick={() => {
+            if (authStatus !== "authenticated") setIsOpenLoginRequiredModal(true);
+          }}
+          scroll={false}
+        >
+          글 작성하기
+        </Link>
+      </Button>
     </div>
   );
 }

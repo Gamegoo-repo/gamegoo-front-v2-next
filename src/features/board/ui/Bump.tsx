@@ -16,7 +16,8 @@ export function Bump() {
   return (
     <div className="shrink-0">
       <Button
-        className="bold-14 flex items-center gap-[4px] hover:-translate-y-2 hover:bg-gray-200"
+        className="bold-14 flex hover:-translate-y-2"
+        variant="ghost"
         onClick={() => bumpPost.mutate()}
       >
         <ChevronsUp className="size-[16px] text-violet-600" />

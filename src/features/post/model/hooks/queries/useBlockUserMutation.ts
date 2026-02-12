@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 import { clientSideOpenapiClient } from "@/shared/api/clientSideOpenapiClient";
+import { toastMessage } from "@/shared/model";
 
 import { POST_QUERYKEYS } from "@/entities/post";
 
@@ -34,7 +35,10 @@ export const useBlockUserMutation = () => {
       if (error) throw error;
     },
 
-    onSuccess: () => {
+    onSuccess: (_, variables) => {
+      if (variables.type === "block") toastMessage.success("차단되었습니다.");
+      if (variables.type === "unblock") toastMessage.success("차단을 해제했습니다.");
+
       queryClient.invalidateQueries({
         queryKey: POST_QUERYKEYS.PostList
       });

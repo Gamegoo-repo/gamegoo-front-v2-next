@@ -22,11 +22,17 @@ export function Pagination({ totalPages, currentPage }: PaginationProps) {
   };
 
   return (
-    <div className="flex items-center gap-[36px]">
+    <div className="flex items-center gap-4">
       {currentPage > 1 ? (
-        <Link href={setParams(currentPage - 1)}>
-          <ChevronLeft />
-        </Link>
+        <Button
+          className="size-[40px] rounded-full"
+          asChild
+          variant="ghost"
+        >
+          <Link href={setParams(currentPage - 1)}>
+            <ChevronLeft />
+          </Link>
+        </Button>
       ) : (
         <ChevronLeft />
       )}
@@ -37,6 +43,7 @@ export function Pagination({ totalPages, currentPage }: PaginationProps) {
             <li key={i}>
               <Button
                 className="size-[40px] rounded-full"
+                variant="ghost"
                 asChild
                 onClick={() => window.scrollTo({ top: 0 })}
               >
@@ -57,9 +64,15 @@ export function Pagination({ totalPages, currentPage }: PaginationProps) {
       </ol>
 
       {currentPage !== totalPages ? (
-        <Link href={setParams(currentPage + 1)}>
-          <ChevronRight />
-        </Link>
+        <Button
+          className="size-[40px] rounded-full"
+          asChild
+          variant="ghost"
+        >
+          <Link href={setParams(currentPage + 1)}>
+            <ChevronRight />
+          </Link>
+        </Button>
       ) : (
         <ChevronRight />
       )}

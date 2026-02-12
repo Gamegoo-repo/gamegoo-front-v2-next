@@ -273,6 +273,14 @@
   }
 
   .a11y-focus-visible {
-    @apply focus-visible:ring-[3px] focus-visible:ring-violet-600;
+    @apply relative focus-visible:z-50 focus-visible:ring-2 focus-visible:ring-violet-600 focus-visible:ring-offset-2;
+  }
+
+  .a11y-focus-visible-bg {
+    @apply focus-visible:bg-violet-600 focus-visible:text-white;
+  }
+
+  .a11y-focus-within {
+    @apply focus-within:ring-2 focus-within:ring-violet-600 focus-within:ring-offset-2;
   }
 }

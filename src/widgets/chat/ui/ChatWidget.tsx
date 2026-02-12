@@ -94,7 +94,7 @@ export function ChatWidget() {
     <>
       <div className="relative size-20">
         <Button
-          className="fixed size-20 rounded-full bg-violet-600"
+          className="fixed z-50 size-20 rounded-full bg-violet-600"
           onClick={() => {
             // 로그인하지 않은 사용자는 LoginRequiredModal을 띄우고 모달이 열리는 것을 막음
             if (authStatus !== "authenticated") {
@@ -110,8 +110,8 @@ export function ChatWidget() {
 
         {unReadMessageCount > 0 && (
           <div
-            className="absolute -top-2 -right-2 flex size-8 items-center justify-center rounded-full
-border border-violet-300 bg-violet-200 text-lg"
+            className="absolute -top-2 -right-2 z-50 flex size-8 items-center justify-center
+rounded-full border border-violet-300 bg-violet-200 text-lg"
           >
             {unReadMessageCount}
           </div>

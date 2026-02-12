@@ -7,5 +7,5 @@ export const formatTime = (input: string) => {
   return formatDistanceToNow(target, {
     addSuffix: true,
     locale: ko
-  });
+  }).replaceAll("약", "");
 };

@@ -2,14 +2,12 @@
 
 import { usePathname } from "next/navigation";
 import { useEffect } from "react";
-import { useAuthStore } from "@/features/auth";
+
 import { runRefreshOnce } from "@/shared/api/runRefreshOnce";
 
-export default function InitAuthProvider({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+import { useAuthStore } from "@/features/auth";
+
+export function InitAuthProvider({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const isRiotCallback = pathname.includes("/riot/callback");
 
@@ -36,7 +34,6 @@ export default function InitAuthProvider({
         return;
       }
 
-
       if (cancelled) return;
       setAccessToken(newAccessToken);
       setAuthStatus("authenticated");
@@ -45,14 +42,7 @@ export default function InitAuthProvider({
     return () => {
       cancelled = true;
     };
-  }, [
-    isRiotCallback,
-    accessToken,
-    authStatus,
-    setAccessToken,
-    setAuthStatus,
-    clearAuth,
-  ]);
+  }, [isRiotCallback, accessToken, authStatus, setAccessToken, setAuthStatus, clearAuth]);
 
   return <>{children}</>;
 }

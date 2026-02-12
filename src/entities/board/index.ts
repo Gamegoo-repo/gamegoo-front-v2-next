@@ -11,3 +11,4 @@ export { SelectPosition } from "./ui/SelectPosition";
 export { GameStyle } from "./ui/GameStyle";
 
 export { createdAtFormat } from "./model/createdAtFormat";
+export type { ChampionStatsResponseList } from "./model/types";

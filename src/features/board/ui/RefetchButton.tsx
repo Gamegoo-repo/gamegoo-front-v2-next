@@ -18,16 +18,16 @@ export function RefetchButton({ refetch }: { refetch: () => void }) {
   }, [rotate]);
 
   return (
-    <div className="flex size-12 items-center justify-center rounded-md hover:bg-gray-200">
+    <div className="flex size-12 items-center justify-center rounded-md">
       <Button
-        className={cn(rotate && "spin-object")}
+        variant="ghost"
         onClick={() => {
           refetch();
 
           setRotate(true);
         }}
       >
-        <RefreshCcw className="size-8" />
+        <RefreshCcw className={cn("size-8 text-violet-600", rotate && "spin-object")} />
       </Button>
     </div>
   );

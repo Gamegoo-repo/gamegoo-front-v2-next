@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { Socket } from "socket.io-client";
 
 import { SOCKET_EVENTS } from "@/shared/constants/socketEvents";
@@ -25,29 +25,32 @@ export const useJwtErrorHandler = (socket: Socket | null) => {
     return data.accessToken;
   };
 
-  const HANDLERS = {
-    [SOCKET_EVENTS.JWT_ERROR.CONNECTION]: async () => {
-      try {
-        const accessToken = await refreshAccessToken();
+  const HANDLERS = useMemo(
+    () => ({
+      [SOCKET_EVENTS.JWT_ERROR.CONNECTION]: async () => {
+        try {
+          const accessToken = await refreshAccessToken();
 
-        if (accessToken) {
-          socket?.emit(SOCKET_EVENTS.JWT_UPDATE, { token: accessToken });
+          if (accessToken) {
+            socket?.emit(SOCKET_EVENTS.JWT_UPDATE, { token: accessToken });
+          }
+        } catch (error) {
+          await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/auth/logout`);
         }
-      } catch (error) {
-        await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/auth/logout`);
-      }
-    },
-    [SOCKET_EVENTS.JWT_ERROR.EXPIRED]: async (response: JwtExpiredError) => {
-      const accessToken = await refreshAccessToken();
-      const { eventName, eventData } = response.data;
+      },
+      [SOCKET_EVENTS.JWT_ERROR.EXPIRED]: async (response: JwtExpiredError) => {
+        const accessToken = await refreshAccessToken();
+        const { eventName, eventData } = response.data;
 
-      if (accessToken)
-        socket?.emit(eventName, {
-          ...eventData,
-          token: accessToken
-        });
-    }
-  };
+        if (accessToken)
+          socket?.emit(eventName, {
+            ...eventData,
+            token: accessToken
+          });
+      }
+    }),
+    [socket]
+  );
 
   useEffect(() => {
     if (!socket) return;

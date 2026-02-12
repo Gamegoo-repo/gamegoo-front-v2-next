@@ -1,6 +1,7 @@
 "use client";
 
 import { useQueryClient } from "@tanstack/react-query";
+import { compareDesc, parseISO } from "date-fns";
 import { useSearchParams } from "next/navigation";
 import { useEffect } from "react";
 
@@ -33,21 +34,19 @@ export function Board() {
         queryKey: POST_QUERYKEYS.PostList
       });
     }
-  }, [isSuccess]);
+  }, [isSuccess, queryClient]);
 
   return (
     <div className="flex flex-col items-center gap-[64px]">
       <BoardTable
         posts={
-          data?.boards.sort((a, b) => {
-            if (a.createdAt > b.createdAt) return -1;
-            if (a.createdAt < b.createdAt) return 1;
-            return 0;
-          }) ?? []
+          data?.boards.sort((a, b) => compareDesc(parseISO(a.createdAt), parseISO(b.createdAt))) ??
+          []
         }
         isLoading={isLoading}
         userInfo={userInfo}
       />
+
       {data?.boards.length === 0 ? (
         <NoPost />
       ) : (

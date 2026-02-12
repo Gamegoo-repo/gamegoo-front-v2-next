@@ -22,11 +22,11 @@ export function PositionSelectButton() {
           <Button
             key={v}
             className={cn(
-              `inline-flex h-[56px] w-[48px] items-center justify-center rounded-none border-r
-border-gray-300 bg-gray-200 p-2 first:rounded-l-[10px] last:rounded-r-[10px] last:border-none
-hover:bg-gray-300`,
-              selected === v && "bg-gray-700 text-gray-100 hover:bg-gray-700"
+              `h-14 w-12 items-center justify-center rounded-none border-r border-gray-300
+bg-gray-200 p-2 first:rounded-l-[10px] last:rounded-r-[10px] last:border-none hover:bg-gray-300`,
+              selected === v && "bg-gray-700 text-gray-100 hover:bg-gray-500"
             )}
+            variant="ghost"
             onClick={() => {
               setSelected(v);
 

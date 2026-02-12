@@ -1,32 +1,29 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useCallback } from "react";
 
 import { useAuthStore } from "@/features/auth/model/store/auth.store";
 
-export function LoginRequiredModal({ routeBack }: { routeBack: boolean }) {
-  const [isOpen, setIsOpen] = useState(false);
+/**
+ * 로그인이 필요합니다 모달 컴포넌트
+ */
+export function LoginRequiredModal({ routeBack = false }) {
+  const { isOpenLoginRequiredModal, setIsOpenLoginRequiredModal } = useAuthStore();
   const router = useRouter();
-  const authStatus = useAuthStore((s) => s.authStatus);
 
-  useEffect(() => {
-    if (authStatus !== "authenticated") setIsOpen(true);
-  }, []);
+  const handleOnClick = useCallback(() => {
+    if (routeBack) router.back();
+
+    setIsOpenLoginRequiredModal(false);
+  }, [routeBack, router, setIsOpenLoginRequiredModal]);
 
   return (
     <>
-      {isOpen && (
+      {isOpenLoginRequiredModal && (
         <div
-          className="fixed inset-0 z-10 h-dvh w-dvw bg-gray-800/50"
-          onClick={() => {
-            if (routeBack) {
-              router.back();
-              return;
-            }
-
-            setIsOpen(false);
-          }}
+          className="fixed inset-0 z-[100] h-dvh w-dvw bg-gray-800/50"
+          onClick={handleOnClick}
         >
           <div
             className="absolute bottom-10 left-1/2 flex -translate-x-1/2 flex-col gap-10
@@ -36,14 +33,7 @@ bg-violet-100 p-4 text-4xl font-bold"
             <span>로그인 ㄱㄱ</span>
             <button
               className="bg-violet-300"
-              onClick={() => {
-                if (routeBack) {
-                  router.back();
-                  return;
-                }
-
-                setIsOpen(false);
-              }}
+              onClick={handleOnClick}
             >
               확인
             </button>

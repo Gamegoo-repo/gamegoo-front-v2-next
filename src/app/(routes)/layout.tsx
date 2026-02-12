@@ -3,6 +3,8 @@ import { Toaster } from "sonner";
 
 import "@/shared/styles/globals.css";
 
+import { LoginRequiredModal } from "@/features/auth";
+
 import { ReactQueryProvider } from "@/app/providers/ReactQueryProvider";
 
 export const metadata: Metadata = {
@@ -27,6 +29,7 @@ export default async function RootLayout({
         className="z-50"
         richColors={true}
       />
+      <LoginRequiredModal />
     </ReactQueryProvider>
   );
 }

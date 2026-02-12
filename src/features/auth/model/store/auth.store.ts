@@ -4,8 +4,12 @@ import { devtools } from "zustand/middleware";
 type AuthStatus = "idle" | "authenticated" | "unauthenticated";
 
 type AuthStore = {
+  isOpenLoginRequiredModal: boolean;
+
   accessToken: string | null;
   authStatus: AuthStatus;
+
+  setIsOpenLoginRequiredModal: (isOpen: boolean) => void;
 
   setAccessToken: (token: string | null) => void;
   setAuthStatus: (status: AuthStatus) => void;
@@ -17,13 +21,17 @@ type AuthStore = {
 
 export const useAuthStore = create<AuthStore>()(
   devtools((set) => ({
+    isOpenLoginRequiredModal: false,
+
     accessToken: null,
     authStatus: "idle",
+
+    setIsOpenLoginRequiredModal: (isOpen) => set({ isOpenLoginRequiredModal: isOpen }),
 
     setAccessToken: (token) =>
       set({
         accessToken: token,
-        authStatus: token ? "authenticated" : "unauthenticated",
+        authStatus: token ? "authenticated" : "unauthenticated"
       }),
 
     setAuthStatus: (status) => set({ authStatus: status }),
@@ -31,19 +39,19 @@ export const useAuthStore = create<AuthStore>()(
     login: (token) =>
       set({
         accessToken: token,
-        authStatus: "authenticated",
+        authStatus: "authenticated"
       }),
 
     logout: () =>
       set({
         accessToken: null,
-        authStatus: "unauthenticated",
+        authStatus: "unauthenticated"
       }),
 
     clearAuth: () =>
       set({
         accessToken: null,
-        authStatus: "unauthenticated",
-      }),
+        authStatus: "unauthenticated"
+      })
   }))
 );

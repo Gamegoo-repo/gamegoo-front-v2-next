@@ -1,23 +1,23 @@
 "use client";
 
 import { ChevronsUp } from "lucide-react";
-import { useState } from "react";
 
 import { Button } from "@/shared/ui/button";
 
-import { LoginRequiredModal } from "@/features/auth";
+import { useAuthStore } from "@/features/auth";
 import { useBumpMutation } from "@/features/board/model/hooks/queries/useBumpMutation";
 
 export function Bump() {
-  const [isOpen, setIsOpen] = useState(false);
+  const setIsOpenLoginRequiredModal = useAuthStore((s) => s.setIsOpenLoginRequiredModal);
   const bumpPost = useBumpMutation({
-    loginRequired: () => setIsOpen(true)
+    loginRequired: () => setIsOpenLoginRequiredModal(true)
   });
 
   return (
     <div className="shrink-0">
       <Button
-        className="bold-14 flex items-center gap-[4px] hover:-translate-y-2 hover:bg-gray-200"
+        className="bold-14 flex hover:-translate-y-2"
+        variant="ghost"
         onClick={() => bumpPost.mutate()}
       >
         <ChevronsUp className="size-[16px] text-violet-600" />
@@ -25,12 +25,6 @@ export function Bump() {
           내가 쓴 글 끌어올리기
         </span>
       </Button>
-
-      {isOpen && (
-        <div onClick={() => setIsOpen(false)}>
-          <LoginRequiredModal routeBack={false} />
-        </div>
-      )}
     </div>
   );
 }

@@ -44,60 +44,76 @@ export function SelectGameStyle() {
   };
 
   return (
-    <div className="flex items-center gap-[4px]">
-      <div className="flex gap-[4px]">
+    <Popover
+      open={isOpen}
+      onOpenChange={setIsOpen}
+    >
+      <div className="flex flex-wrap gap-2">
+        <div className="h-[34px]">
+          <PopoverTrigger asChild>
+            <Button
+              className="flex items-center justify-center rounded-full border border-gray-300
+bg-white px-4 py-1.5 hover:border-gray-400 hover:bg-gray-300"
+              variant="ghost"
+              type="button"
+              onClick={() => setIsOpen(true)}
+            >
+              <Plus className="size-4" />
+            </Button>
+          </PopoverTrigger>
+        </div>
+
         {GAME_STYLE.map(({ gameStyleId, gameStyleName }) =>
           gameStyles.includes(gameStyleId) ? (
-            <div
+            <Button
               key={gameStyleId}
-              className="rounded-full bg-white px-[12px] py-[4px]"
+              className="flex h-[34px] shrink-0 items-center gap-1 rounded-full border
+border-gray-300 bg-white px-3 py-1"
+              variant="ghost"
+              onClick={() => toggleGameStyle(gameStyleId)}
             >
-              {gameStyleName}
-            </div>
+              <span>{gameStyleName}</span>
+              <X className="size-4" />
+            </Button>
           ) : null
         )}
-      </div>
-
-      <Popover
-        open={isOpen}
-        onOpenChange={setIsOpen}
-      >
-        <PopoverTrigger asChild>
-          <Button
-            className="flex h-[32px] w-[48px] items-center justify-center rounded-full bg-white"
-            type="button"
-          >
-            <Plus className="size-[16px]" />
-          </Button>
-        </PopoverTrigger>
 
         <PopoverContent
-          className="w-[599px] rounded-[20px] border-none bg-[rgba(0,0,0,0.70)] p-[32px] text-white
-backdrop-blur-[7.5px]"
+          className="w-xl rounded-2xl border-none bg-gray-800/85 p-8 text-white backdrop-blur-xs"
+          side="top"
         >
-          <PopoverArrow className="fill-[rgba(0,0,0,0.70)] backdrop-blur-[7.5px]" />
+          <PopoverArrow className="fill-gray-800/85 backdrop-blur-sm" />
           <PopoverHeader>
             <PopoverTitle className="sr-only">게임 스타일 선택</PopoverTitle>
 
             <div className="space-y-[28px]">
-              <div className="flex items-center justify-between">
+              <div className="flex items-center justify-between pl-2 text-gray-300">
                 <p className="bold-20">게임 스타일 선택 *최대 3개</p>
-                <X
-                  className="size-[24px]"
+
+                <Button
+                  className="hover:bg-gray-700"
+                  size="icon"
+                  variant="ghost"
                   onClick={() => setIsOpen(false)}
-                />
+                >
+                  <X className="size-5 cursor-pointer" />
+                </Button>
               </div>
 
-              <div className="flex flex-wrap gap-[12px]">
+              <div className="flex flex-wrap gap-2">
                 {GAME_STYLE.map((v) => {
                   return (
                     <Button
                       key={v.gameStyleId}
                       className={cn(
-                        "semibold-18 w-fit rounded-full border border-gray-500 px-[20px] py-[6px]",
+                        `w-fit rounded-full border border-gray-500 px-2 py-1 hover:border-gray-400
+hover:bg-gray-600 focus-visible:ring-violet-400! focus-visible:ring-offset-2!
+focus-visible:ring-offset-gray-800/85`,
                         gameStyles.includes(v.gameStyleId) &&
-                          "border-violet-600 bg-violet-600 text-white"
+                          `border-violet-700 bg-violet-600 text-white hover:border-violet-600
+hover:bg-violet-500`
                       )}
+                      variant="ghost"
                       onClick={() => toggleGameStyle(v.gameStyleId)}
                     >
                       {v.gameStyleName}
@@ -108,7 +124,7 @@ backdrop-blur-[7.5px]"
             </div>
           </PopoverHeader>
         </PopoverContent>
-      </Popover>
-    </div>
+      </div>
+    </Popover>
   );
 }

@@ -1,8 +1,10 @@
 "use client";
 
 import { getPositionIcon, getTierIcon } from "@/shared/model/getIcon";
+import { DialogModal } from "@/shared/ui/dialog";
 
 import {
+  ChampionStatsResponseList,
   Comments,
   GameStyle,
   MainOrSubPosition,
@@ -14,7 +16,7 @@ import {
   createdAtFormat
 } from "@/entities/board";
 
-import { BoardData, ModalContainer } from "@/features/board";
+import type { BoardData, GameMode, Position, Tier } from "@/features/board";
 import { usePostDetailQuery } from "@/features/post/model/hooks/queries/usePostDetailQuery";
 
 type BoardDetailModalProps = {
@@ -23,92 +25,184 @@ type BoardDetailModalProps = {
 };
 
 export function BoardDetailModal({ boardId, boardData }: BoardDetailModalProps) {
-  const { data } = usePostDetailQuery(boardId, boardData);
+  const { data: userInfo } = usePostDetailQuery(boardId, boardData);
 
-  if (!boardData || !data) return null;
-
-  const SoloTierIcon = getTierIcon(data.soloTier);
-  const FreeTierIcon = getTierIcon(data.freeTier);
-  const MainPositionIcon = getPositionIcon(data.mainP);
-  const SubPositionIcon = getPositionIcon(data.subP);
-  const FirstWantPositionIcon = getPositionIcon(data.wantP[0]);
-  const SecondWantPositionIcon = getPositionIcon(data.wantP[1]);
+  if (!boardData || !userInfo) return null;
 
   return (
-    <ModalContainer userInfo={data}>
-      <div className="mt-[30px] space-y-[6px]">
-        <main className="space-y-[30px]">
-          {/* 랭크 */}
-          <div className="flex items-center gap-32">
-            <Rank
-              Icon={SoloTierIcon}
-              tier={data.soloTier}
-              rank={data.soloRank}
-              gameType="솔로랭크"
+    <DialogModal
+      name={userInfo.gameName}
+      imgNum={userInfo.profileImage}
+      tag={userInfo.tag}
+      description="상세 게시글"
+      activeCopy
+      routeBack
+      items={[
+        {
+          id: "rank",
+          content: (
+            <RankSection
+              soloTier={userInfo.soloTier}
+              soloRank={userInfo.soloRank}
+              freeTier={userInfo.freeTier}
+              freeRank={userInfo.freeRank}
             />
-            <Rank
-              Icon={FreeTierIcon}
-              tier={data.freeTier}
-              rank={data.freeRank}
-              gameType="자유랭크"
+          )
+        },
+        {
+          id: "position",
+          content: (
+            <PositionSection
+              mainP={userInfo.mainP}
+              subP={userInfo.subP}
+              wantP={userInfo.wantP}
             />
-          </div>
-
-          {/* 포지션 */}
-          <div className="space-y-[6px]">
-            <h2 className="semibold-14">포지션</h2>
-            <div className="bold-12 flex gap-[8px] *:w-1/2 *:rounded-[10px]">
-              <MainOrSubPosition
-                MainPositionIcon={MainPositionIcon}
-                SubPositionIcon={SubPositionIcon}
-              />
-
-              <WantPosition
-                FirstWantPositionIcon={FirstWantPositionIcon}
-                SecondWantPositionIcon={SecondWantPositionIcon}
-              />
-            </div>
-          </div>
-
-          {/* 선호 게임모드 / 챔피언 */}
-          <div className="flex gap-[8px] *:w-1/2">
-            <div className="space-y-[6px]">
-              <h2 className="semibold-14">선호 게임모드</h2>
-              <PreferredGameMode gameMode={data.gameMode} />
-            </div>
-
-            <div className="space-y-[6px]">
-              <h2 className="semibold-14 flex justify-between">최근 선호 챔피언</h2>
-              <RecentPreferredChampions
-                championStatsResponseList={data.championStatsResponseList}
-              />
-            </div>
-          </div>
-
-          {/* 승률 */}
-          <div className="space-y-[6px]">
-            <h2 className="semibold-14">승률 {data.winRate}%</h2>
-            <WinRate winRate={data.winRate ?? 0} />
-          </div>
-
-          {/* 게임 스타일 */}
-          <div className="space-y-[6px]">
-            <h2 className="semibold-14">게임 스타일</h2>
-            <GameStyle gameStyles={data.gameStyles} />
-          </div>
-
-          {/* 한마디 */}
-          <div className="space-y-[6px]">
-            <h2 className="semibold-14">한마디</h2>
-            <Comments comments={data.contents ?? ""} />
-          </div>
-        </main>
-
-        {/* 게시일 */}
-        <p className="medium-11 text-right text-gray-500">
-          게시일: {createdAtFormat(data.createdAt)}
-        </p>
-      </div>
-    </ModalContainer>
+          )
+        },
+        {
+          id: "preferredGameMode",
+          content: (
+            <PreferredGameModeSection
+              gameMode={userInfo.gameMode}
+              championStatsResponseList={userInfo.championStatsResponseList}
+            />
+          )
+        },
+        {
+          id: "winRate",
+          content: <WinRateSection winRate={userInfo.winRate!} />
+        },
+        {
+          id: "gameStyle",
+          content: <GameStyleSection gameStyles={userInfo.gameStyles} />
+        },
+        {
+          id: "comment",
+          content: <CommentSection comment={userInfo.contents ?? ""} />
+        },
+        {
+          id: "createdAt",
+          content: <CreatedAtSection createdAt={userInfo.createdAt} />
+        }
+      ]}
+    />
   );
+}
+
+type RankSectionProps = {
+  soloTier: Tier;
+  soloRank: number;
+  freeTier: Tier;
+  freeRank: number;
+};
+
+function RankSection({ soloTier, soloRank, freeTier, freeRank }: RankSectionProps) {
+  const SoloTierIcon = getTierIcon(soloTier);
+  const FreeTierIcon = getTierIcon(freeTier);
+
+  return (
+    <section className="flex items-center gap-4 *:flex-1">
+      <Rank
+        Icon={SoloTierIcon}
+        tier={soloTier}
+        rank={soloRank}
+        gameType="솔로랭크"
+      />
+      <Rank
+        Icon={FreeTierIcon}
+        tier={freeTier}
+        rank={freeRank}
+        gameType="자유랭크"
+      />
+    </section>
+  );
+}
+
+type PositionSectionProps = {
+  mainP: Position;
+  subP: Position;
+  wantP: Position[];
+};
+
+function PositionSection({ mainP, subP, wantP }: PositionSectionProps) {
+  const MainPositionIcon = getPositionIcon(mainP);
+  const SubPositionIcon = getPositionIcon(subP);
+  const FirstWantPositionIcon = getPositionIcon(wantP[0]);
+  const SecondWantPositionIcon = getPositionIcon(wantP[1]);
+
+  return (
+    <section className="space-y-2">
+      <h3 className="semibold-14">포지션</h3>
+
+      <div className="bold-12 flex gap-4 *:flex-1">
+        <MainOrSubPosition
+          MainPositionIcon={MainPositionIcon}
+          SubPositionIcon={SubPositionIcon}
+        />
+
+        <WantPosition
+          FirstWantPositionIcon={FirstWantPositionIcon}
+          SecondWantPositionIcon={SecondWantPositionIcon}
+        />
+      </div>
+    </section>
+  );
+}
+
+type PreferredGameModeSectionProps = {
+  gameMode: GameMode;
+  championStatsResponseList: ChampionStatsResponseList;
+};
+
+function PreferredGameModeSection({
+  gameMode,
+  championStatsResponseList
+}: PreferredGameModeSectionProps) {
+  return (
+    <section className="flex gap-4">
+      <div className="w-2/5 space-y-2">
+        <h3 className="semibold-14">선호 게임모드</h3>
+        <PreferredGameMode gameMode={gameMode} />
+      </div>
+
+      <div className="w-3/5 space-y-2">
+        <h3 className="semibold-14 flex">최근 선호 챔피언</h3>
+        <RecentPreferredChampions championStatsResponseList={championStatsResponseList} />
+      </div>
+    </section>
+  );
+}
+
+function WinRateSection({ winRate }: { winRate: number }) {
+  return (
+    <section className="space-y-2">
+      <h3 className="semibold-14">승률 {winRate}%</h3>
+
+      <WinRate winRate={winRate ?? 0} />
+    </section>
+  );
+}
+
+function GameStyleSection({ gameStyles }: { gameStyles: number[] }) {
+  return (
+    <section className="space-y-2">
+      <h3 className="semibold-14">게임 스타일</h3>
+
+      <GameStyle gameStyles={gameStyles} />
+    </section>
+  );
+}
+
+function CommentSection({ comment }: { comment: string }) {
+  return (
+    <section className="space-y-[6px]">
+      <h3 className="semibold-14">한마디</h3>
+
+      <Comments comments={comment} />
+    </section>
+  );
+}
+
+function CreatedAtSection({ createdAt }: { createdAt: string }) {
+  return <p className="medium-11 text-right text-gray-500">게시일: {createdAtFormat(createdAt)}</p>;
 }

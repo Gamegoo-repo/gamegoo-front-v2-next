@@ -7,14 +7,17 @@ type MainOrSubPositionProps = {
 
 export function MainOrSubPosition({ MainPositionIcon, SubPositionIcon }: MainOrSubPositionProps) {
   return (
-    <div className="flex justify-between bg-white px-[44px] py-[16px]">
+    <div
+      className="flex items-center justify-center gap-8 rounded-xl border border-gray-300 bg-white
+py-4"
+    >
       <div>
-        <h3>주 포지션</h3>
+        <h4>주 포지션</h4>
         <MainPositionIcon className="size-12" />
       </div>
 
       <div>
-        <h3>부 포지션</h3>
+        <h4>부 포지션</h4>
         <SubPositionIcon className="size-12" />
       </div>
     </div>

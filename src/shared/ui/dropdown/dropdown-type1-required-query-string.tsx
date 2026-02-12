@@ -32,8 +32,8 @@ export function DropdownType1RequiredQueryString({ values, queryString }: Dropdo
       onValueChange={handleSearchParams}
     >
       <SelectTrigger
-        className="medium-16 h-[56px]! w-[138px] rounded-[10px] border-gray-300 bg-white py-[16px]
-ring-0! [&>svg]:size-[24px] [&>svg]:text-gray-600"
+        className="medium-16 a11y-focus-visible h-14! w-36 rounded-[10px] border-gray-300 bg-white
+py-[16px] focus-visible:ring-2 [&>svg]:size-[24px] [&>svg]:text-gray-600"
       >
         {values.find((v) => v.value === searchParams.get(queryString))?.label || values[0].label}
       </SelectTrigger>
@@ -46,8 +46,8 @@ ring-0! [&>svg]:size-[24px] [&>svg]:text-gray-600"
           return (
             <SelectItem
               key={value}
-              className="medium-16 h-[56px] px-[20px] py-[16px] hover:bg-violet-600
-hover:text-gray-200 [&_svg]:hidden"
+              className="medium-16 a11y-focus-visible-bg h-[56px] px-[20px] py-[16px]
+hover:bg-violet-600 hover:text-gray-200 [&_svg]:hidden"
               value={value}
             >
               {label}

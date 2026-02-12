@@ -32,21 +32,20 @@ export function PreferredGameMode() {
       }
     >
       <SelectTrigger
-        className="medium-16 h-[56px]! w-[242px] rounded-[10px] border-gray-300 bg-white px-[20px]
-py-[16px] [&>svg]:size-[24px] [&>svg]:text-gray-600"
+        className="medium-16 a11y-focus-visible h-12! w-full rounded-xl border-gray-300 bg-white p-4
+[&>svg]:size-[24px] [&>svg]:text-gray-600"
       >
         {preferredGameMode(gameMode)}
       </SelectTrigger>
 
       <SelectContent
-        className="rounded-[10px] border-gray-300 bg-white [&_[data-radix-select-viewport]]:p-0"
+        className="rounded-xl border-gray-300 bg-white [&_[data-radix-select-viewport]]:p-0"
         position="popper"
       >
         {GAME_MODE.slice(1, GAME_MODE.length).map(({ label, value }) => (
           <SelectItem
             key={value}
-            className="medium-16 h-[56px] px-[20px] py-[16px] hover:bg-gray-100
-hover:text-violet-600 [&_svg]:hidden"
+            className="medium-16 h-12 p-4 hover:bg-gray-200 hover:text-violet-600 [&_svg]:hidden"
             value={value}
           >
             {label}

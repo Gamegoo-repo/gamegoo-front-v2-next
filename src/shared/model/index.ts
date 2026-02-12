@@ -1,4 +1,4 @@
 export { characters } from "./characters";
 export { mode, tier, voice } from "./dropdown-items";
 export { toastMessage } from "./toastMessage";
-export type { Mode, ModeValue, Tier, TierValue, Voice, VoiceValue } from "./dropdown-items";
+export { getTierIcon, getPositionIcon } from "./getIcon";

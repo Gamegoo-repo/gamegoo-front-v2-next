@@ -5,10 +5,14 @@ import { useState } from "react";
 
 import { cn } from "@/shared/libs/cn";
 import { Button } from "@/shared/ui/button";
+import { Input } from "@/shared/ui/input";
 
 import { Friend, useLikeFriendMutation } from "@/features/chat";
 import { FriendList } from "@/features/profile";
 
+/**
+ * 친구 목록을 렌더링하는 컴포넌트
+ */
 export function Friends({ friendList }: { friendList: FriendList }) {
   const [input, setInput] = useState("");
 
@@ -18,9 +22,9 @@ export function Friends({ friendList }: { friendList: FriendList }) {
     <div className="space-y-2 px-4">
       <div className="relative flex items-center pt-2">
         <Search className="absolute left-2 size-5" />
-        <input
-          className="w-full rounded-xl border-transparent bg-gray-200 py-2 pr-2 pl-8 outline-none
-focus:ring-2 focus:ring-violet-600"
+
+        <Input
+          className="pr-2 pl-8"
           onChange={(e) => setInput(e.target.value)}
           type="text"
           placeholder="친구 검색하기"
@@ -82,10 +86,17 @@ function FriendListMap({ friendList, label }: FriendListMapProps) {
               label={`#${v.tag}`}
             >
               <Button
-                className="p-1!"
+                size="icon-sm"
+                variant="ghost"
                 onClick={(e) => {
                   e.stopPropagation();
                   likeFriend.mutate({ memberId: v.memberId });
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.stopPropagation();
+                    likeFriend.mutate({ memberId: v.memberId });
+                  }
                 }}
               >
                 <Star

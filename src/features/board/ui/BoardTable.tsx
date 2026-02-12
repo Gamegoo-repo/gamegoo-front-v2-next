@@ -69,8 +69,6 @@ export function BoardTable({ posts }: { posts: PostList }) {
             const WantMainPosition = POSITION_ICONS[v.wantP[0]];
             const WantSubPosition = POSITION_ICONS[v.wantP[1]];
 
-            if (v.memberId === userInfo?.id) console.log("!");
-
             return (
               <TableRow
                 key={`${v.boardId}-${v.memberId.toString()}`}

@@ -25,7 +25,7 @@ interface FriendStatus extends BaseAndTimeStamp {
 }
 
 export const useFriendStatus = (socket: Socket | null) => {
-  const { setOnlineFriendsIds } = useFriendStore();
+  const setOnlineFriendsIds = useFriendStore((s) => s.setOnlineFriendsIds);
 
   const HANDLERS = useMemo(
     () => ({

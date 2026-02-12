@@ -65,7 +65,7 @@ export function ChatWidget() {
     setUnReadMessageCount(
       chatList?.map((v) => v.notReadMsgCnt).reduce((acc, cur) => acc + cur) ?? 0
     );
-  }, [msg, chatList]);
+  }, [messageTrigger, chatList, queryClient]);
 
   // ESC를 눌렀을 때 메시지 모달이 닫히게 하는 useEffect
   useEffect(() => {

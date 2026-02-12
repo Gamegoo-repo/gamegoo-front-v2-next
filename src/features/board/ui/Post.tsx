@@ -7,14 +7,14 @@ import { useAuthStore } from "@/features/auth";
 
 export function Post() {
   const setIsOpenLoginRequiredModal = useAuthStore((s) => s.setIsOpenLoginRequiredModal);
-  const accessToken = useAuthStore((s) => s.accessToken);
+  const authStatus = useAuthStore((s) => s.authStatus);
   const searchParams = useSearchParams();
 
   return (
     <div className="shrink-0">
       <Link
         href={{
-          pathname: accessToken ? "/board/post" : "",
+          pathname: authStatus === "authenticated" ? "/board/post" : "",
           query: { page: searchParams.get("page") }
         }}
         className="bold-14 flex h-[58px] w-[248px] items-center justify-center rounded-[12px]

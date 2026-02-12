@@ -1,20 +1,13 @@
 "use client";
 
-import { useQueryClient } from "@tanstack/react-query";
 import { RefreshCcw } from "lucide-react";
-import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
 import { cn } from "@/shared/libs/cn";
 import { Button } from "@/shared/ui/button";
 
-import { POST_QUERYKEYS } from "@/entities/post/constants/post.queryKeys";
-
-export function RefetchButton() {
+export function RefetchButton({ refetch }: { refetch: () => void }) {
   const [rotate, setRotate] = useState(false);
-  const queryClient = useQueryClient();
-  const searchParams = useSearchParams();
-  const router = useRouter();
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -29,13 +22,9 @@ export function RefetchButton() {
       <Button
         className={cn(rotate && "spin-object")}
         onClick={() => {
-          queryClient.invalidateQueries({
-            queryKey: [POST_QUERYKEYS.PostList, { page: Number(searchParams.get("page")) }]
-          });
+          refetch();
 
           setRotate(true);
-
-          router.refresh();
         }}
       >
         <RefreshCcw className="size-8" />

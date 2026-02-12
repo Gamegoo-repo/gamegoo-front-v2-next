@@ -1,15 +1,35 @@
 "use client";
 
-import { EllipsisVertical } from "lucide-react";
+import { EllipsisVertical, X } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 
 import { POSITION_ICONS, TIER_ICONS } from "@/shared/constants";
 import { cn } from "@/shared/libs/cn";
 import { formatTime } from "@/shared/libs/date/formatTime";
 import { characters, toastMessage } from "@/shared/model";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle
+} from "@/shared/ui/alert-dialog";
 import { Button } from "@/shared/ui/button";
+import { Checkbox } from "@/shared/ui/checkbox";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle
+} from "@/shared/ui/dialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -26,247 +46,456 @@ import {
   TableRow
 } from "@/shared/ui/table";
 
-import { useDeletePostMutation, useFetchPostListQuery } from "@/features/post";
-import { useFetchProfileQuery } from "@/features/profile";
+import { UserInfo } from "@/entities/auth";
 
-import { PostList } from "../../../entities/post/model/types/response/post.response.type";
+import { BoardList } from "@/features/board";
+import { useBlockUserMutation, useDeletePostMutation } from "@/features/post";
+import { useReportMutation } from "@/features/post/model/hooks/queries/useReportMutation";
 
-export function BoardTable({ posts }: { posts: PostList }) {
-  const { data: userInfo } = useFetchProfileQuery();
+type BoardTableProps = {
+  posts: NonNullable<BoardList>["boards"];
+  isLoading: boolean;
+  userInfo: UserInfo;
+};
+
+export function BoardTable({ posts, isLoading, userInfo }: BoardTableProps) {
+  return (
+    <>
+      <Table className="table-fixed">
+        <TableCaption className="sr-only">게시물 목록</TableCaption>
+
+        <TableHeader className="sticky top-0 z-10">
+          <TableRow className="bold-14 bg-gray-800 text-white *:text-center">
+            {/* FIX: 아무렇게나 나눔 나중에 수정 */}
+            <TableHead className="w-[220px] rounded-l-[8px] text-start!">소환사</TableHead>
+            <TableHead className="w-[52px]">매너 레벨</TableHead>
+            <TableHead className="w-[64px]">티어</TableHead>
+            <TableHead className="w-[69px]">주/부 포지션</TableHead>
+            <TableHead className="w-[92px]">내가 찾는 포지션</TableHead>
+            <TableHead className="w-[160px]">최근 선호 챔피언</TableHead>
+            <TableHead className="w-[80px]">승률</TableHead>
+            <TableHead className="w-[156px]">한마디</TableHead>
+            <TableHead className={cn("w-[80px] rounded-r-[8px]", userInfo && "text-start!")}>
+              등록일시
+            </TableHead>
+          </TableRow>
+        </TableHeader>
+
+        <TableBody>
+          {posts && !isLoading ? (
+            posts.map((v) => {
+              return (
+                <BoardRow
+                  key={`${v.boardId}-${v.memberId.toString()}`}
+                  v={v}
+                  userInfo={userInfo}
+                />
+              );
+            })
+          ) : (
+            <Skeleton />
+          )}
+        </TableBody>
+      </Table>
+    </>
+  );
+}
+
+type BoardRowProps = {
+  v: NonNullable<BoardList>["boards"][number];
+  userInfo: UserInfo;
+};
+
+function BoardRow({ v, userInfo }: BoardRowProps) {
+  const [isBlockOpen, setIsBlockOpen] = useState(false);
+  const [isUnblockOpen, setIsUnblockOpen] = useState(false);
+  const [isReportOpen, setIsReportOpen] = useState(false);
+  const [reportCodeList, setReportCodeList] = useState<number[]>([]);
+  const [reportContent, setReportContent] = useState("");
   const router = useRouter();
   const searchParams = useSearchParams();
   const deletePost = useDeletePostMutation();
-  const { isFetching } = useFetchPostListQuery({ page: Number(searchParams.get("page")) });
+  const blockUser = useBlockUserMutation();
+  const report = useReportMutation();
+
+  const ProfileIcon = characters[v.profileImage - 1];
+  const SoloTierIcon = TIER_ICONS[v.soloTier];
+  const MainPositionIcon = POSITION_ICONS[v.mainP];
+  const SubPositionIcon = POSITION_ICONS[v.subP];
+  const WantMainPosition = POSITION_ICONS[v.wantP[0]];
+  const WantSubPosition = POSITION_ICONS[v.wantP[1]];
 
   return (
-    <Table className="table-fixed">
-      <TableCaption className="sr-only">게시물 목록</TableCaption>
+    <>
+      <TableRow
+        className="group relative *:border-b *:border-b-gray-300 *:py-[19px] hover:bg-gray-200"
+      >
+        {/* 소환사 */}
+        <TableCell>
+          <Link
+            href={`/board/${v.boardId}?${searchParams.toString()}`}
+            className="absolute! inset-0! z-0!"
+            aria-label="게시물 상세로 이동"
+          />
 
-      <TableHeader className="sticky top-0 z-10">
-        <TableRow className="bold-14 bg-gray-800 text-white *:text-center">
-          {/* FIX: 내맘대로 나눔 나중에 수정 */}
-          <TableHead className="w-[220px] rounded-l-[8px] text-start!">소환사</TableHead>
-          <TableHead className="w-[52px]">매너 레벨</TableHead>
-          <TableHead className="w-[64px]">티어</TableHead>
-          <TableHead className="w-[69px]">주/부 포지션</TableHead>
-          <TableHead className="w-[92px]">내가 찾는 포지션</TableHead>
-          <TableHead className="w-[160px]">최근 선호 챔피언</TableHead>
-          <TableHead className="w-[80px]">승률</TableHead>
-          <TableHead className="w-[156px]">한마디</TableHead>
-          <TableHead className={cn("w-[80px] rounded-r-[8px]", userInfo && "text-start!")}>
-            등록일시
-          </TableHead>
-        </TableRow>
-      </TableHeader>
+          <div className="flex gap-[8px]">
+            <div
+              className="flex size-[40px] items-center justify-center rounded-full bg-violet-200
+p-1"
+            >
+              <ProfileIcon />
+            </div>
+            <div>
+              <p className="semibold-16">{v.gameName}</p>
+              <div className="flex items-center gap-2">
+                <p className="regular-13 text-gray-600">#{v.tag}</p>
+                <Button
+                  className="relative z-10 hidden h-[18px]! w-fit border border-gray-400 bg-gray-200
+px-1 text-xs group-hover:flex"
+                  onClick={() => {
+                    navigator.clipboard.writeText(`${v.gameName}#${v.tag}`);
+                    toastMessage.success("소환사명이 복사되었습니다.");
+                  }}
+                >
+                  복사
+                </Button>
+              </div>
+            </div>
+          </div>
+        </TableCell>
 
-      <TableBody>
-        {posts && !isFetching ? (
-          posts.boards.map((v) => {
-            const ProfileIcon = characters[v.profileImage - 1];
-            const SoloTierIcon = TIER_ICONS[v.soloTier];
-            const MainPositionIcon = POSITION_ICONS[v.mainP];
-            const SubPositionIcon = POSITION_ICONS[v.subP];
-            const WantMainPosition = POSITION_ICONS[v.wantP[0]];
-            const WantSubPosition = POSITION_ICONS[v.wantP[1]];
+        {/* 매너 레벨 */}
+        <TableCell>
+          <span className="bold-16 flex justify-center text-violet-600">LV. {v.mannerLevel}</span>
+        </TableCell>
 
-            return (
-              <TableRow
-                key={`${v.boardId}-${v.memberId.toString()}`}
-                className="group *:border-b *:border-b-gray-300 *:py-[19px] hover:bg-gray-200"
+        {/* 티어 */}
+        <TableCell>
+          <div className="flex items-center">
+            <div className="flex size-[34px] items-center justify-center">
+              <SoloTierIcon />
+            </div>
+            <span className="bold-16">{`${v.tier.at(0)}${v.tier.at(0) !== "U" ? v.rank : ""}`}</span>
+          </div>
+        </TableCell>
+
+        {/* 주/부 포지션 */}
+        <TableCell>
+          <div className="flex justify-center gap-[2px] *:size-[24px]">
+            <MainPositionIcon />
+            <SubPositionIcon />
+          </div>
+        </TableCell>
+
+        {/* 내가 찾는 포지션 */}
+        <TableCell>
+          <div className="flex justify-center gap-[2px] *:size-[24px]">
+            <WantMainPosition />
+            {v.wantP[1] !== undefined && <WantSubPosition />}
+          </div>
+        </TableCell>
+
+        {/* 최근 선호 챔피언 */}
+        <TableCell>
+          {v.championStatsResponseList.length === 0 ? (
+            <p className="semibold-14 text-center text-gray-400">챔피언 정보가 없습니다.</p>
+          ) : (
+            <div className="flex justify-center gap-[6px]">
+              {v.championStatsResponseList.map(({ championName, championId, winRate }) => {
+                return (
+                  <div
+                    key={championId}
+                    className="flex flex-col items-center"
+                  >
+                    <Image
+                      src={`/champions/${championName.replaceAll(" ", "")}.png`}
+                      alt=""
+                      width={32}
+                      height={32}
+                    />
+
+                    {/* FIX: 승률별 색 맞는지 확인 */}
+                    <p
+                      className={cn(
+                        `-mt-1 w-[34px] rounded-full py-[2px] text-center text-[11px] font-[700]
+text-white`,
+                        winRate < 50 && "bg-gray-700",
+                        winRate >= 50 && winRate < 70 && "bg-violet-600",
+                        winRate >= 70 && "bg-[#CB1FCF]"
+                      )}
+                    >
+                      {winRate.toFixed(0)}%
+                    </p>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </TableCell>
+
+        {/* 승률 */}
+        <TableCell>
+          <p
+            className={cn(
+              "bold-16 flex justify-center",
+              v.winRate! < 50 && "text-gray-700",
+              v.winRate! >= 50 && v.winRate! < 70 && "text-violet-600",
+              v.winRate! >= 70 && "text-[#CB1FCF]"
+            )}
+          >
+            {v.winRate?.toFixed(1)}%
+          </p>
+        </TableCell>
+
+        {/* 한마디 */}
+        <TableCell>
+          <div className="flex h-[58px] items-center">
+            <div
+              className="flex w-full justify-center rounded-[8px] border border-gray-400 bg-gray-100
+p-[8px]"
+            >
+              <p className="regular-13 line-clamp-2 text-center break-words whitespace-normal">
+                {v.contents}
+              </p>
+            </div>
+          </div>
+        </TableCell>
+
+        {/* 등록일시 */}
+        <TableCell>
+          <div className="flex items-center justify-between gap-[6px] text-gray-500">
+            <p className="flex w-full justify-center">{formatTime(v.createdAt)}</p>
+
+            {userInfo && (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button className="relative z-10 size-[24px]">
+                    <EllipsisVertical className="size-[20px]" />
+                  </Button>
+                </DropdownMenuTrigger>
+
+                <DropdownMenuContent
+                  className="medium-14 w-[175px] rounded-[10px] border-none bg-white p-0
+text-gray-600 *:h-[43px] *:hover:bg-gray-200"
+                  align="end"
+                >
+                  {v.memberId === userInfo.id ? (
+                    <DropdownMenuItem
+                      onClick={() =>
+                        router.push(
+                          `/board/post/${v.boardId}/edit/?page=${searchParams.get("page")}`,
+                          { scroll: false }
+                        )
+                      }
+                    >
+                      수정하기
+                    </DropdownMenuItem>
+                  ) : (
+                    <DropdownMenuItem onClick={() => setIsReportOpen(true)}>
+                      신고하기
+                    </DropdownMenuItem>
+                  )}
+                  {v.memberId === userInfo.id ? (
+                    <DropdownMenuItem
+                      className="text-red-500"
+                      onClick={() => deletePost.mutate(v.boardId)}
+                    >
+                      삭제하기
+                    </DropdownMenuItem>
+                  ) : (
+                    <>
+                      {v.isBlocked ? (
+                        <DropdownMenuItem onClick={() => setIsUnblockOpen(true)}>
+                          차단 해제
+                        </DropdownMenuItem>
+                      ) : (
+                        <DropdownMenuItem onClick={() => setIsBlockOpen(true)}>
+                          차단하기
+                        </DropdownMenuItem>
+                      )}
+                    </>
+                  )}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
+          </div>
+        </TableCell>
+      </TableRow>
+
+      {/* 차단 */}
+      <AlertDialog
+        open={isBlockOpen}
+        onOpenChange={setIsBlockOpen}
+      >
+        <AlertDialogContent className="flex! w-[540px] flex-col rounded-[20px] bg-white p-0!">
+          <AlertDialogHeader className="px-[82px] pt-[45px] pb-[42px]">
+            <AlertDialogTitle
+              className="text-center text-[20px] font-[400] break-keep text-[#2D2D2D]"
+            >
+              차단한 상대에게는 메시지를 받을 수 없으며
+              <br />
+              <span className="whitespace-nowrap">
+                매칭이 이루어지지 않습니다. 차단하시겠습니까?
+              </span>
+            </AlertDialogTitle>
+            <AlertDialogDescription className="regular-14 w-full text-center text-[#8C8C96]">
+              차단 해제는 마이페이지에서 가능합니다.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+
+          <AlertDialogFooter
+            className="h-[79px] w-full items-center gap-0! border-t border-[#C5C5C7] *:h-full
+*:flex-1 *:hover:bg-gray-200 *:hover:text-violet-600"
+          >
+            <AlertDialogAction
+              className="semibold-18 rounded-bl-[20px]"
+              onClick={() => {
+                toastMessage.success("차단되었습니다.");
+
+                blockUser.mutate({ memberId: v.memberId, type: "block" });
+              }}
+            >
+              차단
+            </AlertDialogAction>
+            <AlertDialogCancel className="semibold-18 rounded-br-[20px] border-none">
+              취소
+            </AlertDialogCancel>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* 차단 해제 */}
+      <AlertDialog
+        open={isUnblockOpen}
+        onOpenChange={setIsUnblockOpen}
+      >
+        <AlertDialogContent className="flex! w-fit flex-col rounded-[20px] bg-white p-0!">
+          <AlertDialogHeader className="px-[82px] pt-[45px] pb-[42px]">
+            <AlertDialogTitle
+              className="text-center text-[20px] font-[400] break-keep text-[#2D2D2D]"
+            >
+              차단을 해제하시겠습니까?
+            </AlertDialogTitle>
+            <AlertDialogDescription className="sr-only">차단 해제</AlertDialogDescription>
+          </AlertDialogHeader>
+
+          <AlertDialogFooter
+            className="h-[79px] w-full items-center gap-0! border-t border-[#C5C5C7] *:h-full
+*:flex-1 *:hover:bg-gray-200 *:hover:text-violet-600"
+          >
+            <AlertDialogAction
+              className="semibold-18 rounded-bl-[20px]"
+              onClick={() => {
+                toastMessage.success("차단을 해제하였습니다.");
+
+                blockUser.mutate({ memberId: v.memberId, type: "unblock" });
+              }}
+            >
+              해제
+            </AlertDialogAction>
+            <AlertDialogCancel className="semibold-18 rounded-br-[20px] border-none">
+              취소
+            </AlertDialogCancel>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* 신고 */}
+      <Dialog
+        open={isReportOpen}
+        onOpenChange={setIsReportOpen}
+      >
+        <DialogContent
+          className="max-h-[90vh] overflow-y-scroll bg-white"
+          showCloseButton={false}
+        >
+          <DialogHeader>
+            <div className="flex items-center justify-between">
+              <DialogTitle className="bold-20">유저 신고하기</DialogTitle>
+              <DialogClose asChild>
+                <Button>
+                  <X />
+                </Button>
+              </DialogClose>
+            </div>
+            <DialogDescription className="sr-only">유저 신고</DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-8">
+            <div className="space-y-3">
+              <p className="semibold-18">신고 사유</p>
+              <ul className="space-y-[21px]">
+                {[
+                  "스팸 홍보 / 도배글",
+                  "불법 정보 포함",
+                  "성희롱 발언",
+                  "욕설 / 혐오 / 차별적 표현",
+                  "개인 정보 노출",
+                  "불쾌한 표현"
+                ].map((v, i) => {
+                  return (
+                    <li
+                      key={v}
+                      className="flex cursor-pointer items-center gap-2 *:cursor-pointer"
+                    >
+                      <Checkbox
+                        id={v}
+                        className="size-[21px] rounded-md data-[state=checked]:bg-violet-600
+data-[state=checked]:text-white"
+                        onCheckedChange={(isSelected: boolean) => {
+                          setReportCodeList((prev: number[]) =>
+                            isSelected ? [...prev, i] : prev.filter((item) => item !== i)
+                          );
+                        }}
+                        checked={reportCodeList.includes(i)}
+                      />
+                      <label
+                        className="regular-18"
+                        htmlFor={v}
+                      >
+                        {v}
+                      </label>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+
+            <div className="space-y-3">
+              <p className="semibold-18">상세 내용</p>
+              <div>
+                <textarea
+                  className="h-34 w-full resize-none rounded-[8px] border border-[#C5C5C7] p-2
+outline-none focus:border-violet-600 focus:ring-1 focus:ring-violet-600"
+                  onChange={(e) => setReportContent(e.target.value)}
+                  placeholder="내용을 입력하세요. (선택)"
+                />
+              </div>
+            </div>
+
+            <DialogClose asChild>
+              <Button
+                className="bold-14 h-[58px] w-full rounded-[15px] bg-violet-600 text-white"
+                disabled={reportCodeList.length === 0}
                 onClick={() => {
-                  router.push(`/board/${v.boardId}?page=${searchParams.get("page")}`);
+                  report.mutate({
+                    memberId: v.memberId,
+                    reportCodeList,
+                    pathCode: 1,
+                    contents: reportContent,
+                    boardId: v.boardId
+                  });
+
+                  setReportCodeList([]);
                 }}
               >
-                {/* 소환사 */}
-                <TableCell>
-                  <div className="flex gap-[8px]">
-                    <div
-                      className="flex size-[40px] items-center justify-center rounded-full
-bg-violet-200 p-1"
-                    >
-                      <ProfileIcon />
-                    </div>
-                    <div>
-                      <p className="semibold-16">{v.gameName}</p>
-                      <div className="flex items-center gap-2">
-                        <p className="regular-13 text-gray-600">#{v.tag}</p>
-                        <Button
-                          className="hidden h-[18px]! w-fit border border-gray-400 bg-gray-200 px-1
-text-xs group-hover:flex"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            navigator.clipboard.writeText(`${v.gameName}#${v.tag}`);
-                            toastMessage.success("소환사명이 복사되었습니다.");
-                          }}
-                        >
-                          복사
-                        </Button>
-                      </div>
-                    </div>
-                  </div>
-                </TableCell>
-
-                {/* 매너 레벨 */}
-                <TableCell>
-                  <span className="bold-16 flex justify-center text-violet-600">
-                    LV. {v.mannerLevel}
-                  </span>
-                </TableCell>
-
-                {/* 티어 */}
-                <TableCell>
-                  <div className="flex items-center">
-                    <div className="flex size-[34px] items-center justify-center">
-                      <SoloTierIcon />
-                    </div>
-                    <span className="bold-16">{`${v.tier.at(0)}${v.tier.at(0) !== "U" ? v.rank : ""}`}</span>
-                  </div>
-                </TableCell>
-
-                {/* 주/부 포지션 */}
-                <TableCell>
-                  <div className="flex justify-center gap-[2px] *:size-[24px]">
-                    <MainPositionIcon />
-                    <SubPositionIcon />
-                  </div>
-                </TableCell>
-
-                {/* 내가 찾는 포지션 */}
-                <TableCell>
-                  <div className="flex justify-center gap-[2px] *:size-[24px]">
-                    <WantMainPosition />
-                    {v.wantP[1] !== undefined && <WantSubPosition />}
-                  </div>
-                </TableCell>
-
-                {/* 최근 선호 챔피언 */}
-                <TableCell>
-                  {v.championStatsResponseList.length === 0 ? (
-                    <p className="semibold-14 text-center text-gray-400">챔피언 정보가 없습니다.</p>
-                  ) : (
-                    <div className="flex justify-center gap-[6px]">
-                      {v.championStatsResponseList.map(({ championName, championId, winRate }) => {
-                        return (
-                          <div
-                            key={championId}
-                            className="flex flex-col items-center"
-                          >
-                            <Image
-                              src={`/champions/${championName.replaceAll(" ", "")}.png`}
-                              alt=""
-                              width={32}
-                              height={32}
-                            />
-
-                            {/* FIX: 승률별 색 맞는지 확인 */}
-                            <p
-                              className={cn(
-                                `-mt-1 w-[34px] rounded-full py-[2px] text-center text-[11px]
-font-[700] text-white`,
-                                winRate < 50 && "bg-gray-700",
-                                winRate >= 50 && winRate < 70 && "bg-violet-600",
-                                winRate >= 70 && "bg-[#CB1FCF]"
-                              )}
-                            >
-                              {winRate.toFixed(0)}%
-                            </p>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  )}
-                </TableCell>
-
-                {/* 승률 */}
-                <TableCell>
-                  <p
-                    className={cn(
-                      "bold-16 flex justify-center",
-                      v.winRate! < 50 && "text-gray-700",
-                      v.winRate! >= 50 && v.winRate! < 70 && "text-violet-600",
-                      v.winRate! >= 70 && "text-[#CB1FCF]"
-                    )}
-                  >
-                    {v.winRate?.toFixed(1)}%
-                  </p>
-                </TableCell>
-
-                {/* 한마디 */}
-                <TableCell>
-                  <div className="flex h-[58px] items-center">
-                    <div
-                      className="flex w-full justify-center rounded-[8px] border border-gray-400
-bg-gray-100 p-[8px]"
-                    >
-                      <p
-                        className="regular-13 line-clamp-2 text-center break-words
-whitespace-normal"
-                      >
-                        {v.contents}
-                      </p>
-                    </div>
-                  </div>
-                </TableCell>
-
-                {/* 등록일시 */}
-                <TableCell>
-                  <div className="flex items-center justify-between gap-[6px] text-gray-500">
-                    <p className="flex w-full justify-center">{formatTime(v.createdAt)}</p>
-
-                    {userInfo && (
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button
-                            className="size-[24px]"
-                            onClick={(e) => e.stopPropagation()}
-                          >
-                            <EllipsisVertical className="size-[20px]" />
-                          </Button>
-                        </DropdownMenuTrigger>
-
-                        <DropdownMenuContent
-                          className="medium-14 w-[175px] rounded-[10px] border-none bg-white p-0
-text-gray-600 *:h-[43px] *:hover:bg-gray-200"
-                          align="end"
-                          onClick={(e) => e.stopPropagation()}
-                        >
-                          {v.memberId === userInfo.id ? (
-                            <DropdownMenuItem
-                              onClick={() =>
-                                router.push(
-                                  `/board/post/${v.boardId}/edit/?page=${searchParams.get("page")}`,
-                                  { scroll: false }
-                                )
-                              }
-                            >
-                              수정하기
-                            </DropdownMenuItem>
-                          ) : (
-                            <DropdownMenuItem>신고하기</DropdownMenuItem>
-                          )}
-                          {v.memberId === userInfo.id ? (
-                            <DropdownMenuItem
-                              className="text-red-500"
-                              onClick={() => deletePost.mutate(v.boardId)}
-                            >
-                              삭제하기
-                            </DropdownMenuItem>
-                          ) : (
-                            <DropdownMenuItem>차단하기</DropdownMenuItem>
-                          )}
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    )}
-                  </div>
-                </TableCell>
-              </TableRow>
-            );
-          })
-        ) : (
-          <Skeleton />
-        )}
-      </TableBody>
-    </Table>
+                신고하기
+              </Button>
+            </DialogClose>
+          </div>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }
 

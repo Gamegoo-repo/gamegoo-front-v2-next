@@ -5,7 +5,7 @@ export const toastMessage = {
     toast.error(<span className="bold-16">{message}</span>, {
       position: "top-center",
       className:
-        "shadow-[3px_3px_6px_0_rgba(255,82,82,0.4)]! h-[48px]! py-[12px]! !px-[24px] border! border-red-600! bg-red-100! text-red-600!"
+        "shadow-[3px_3px_6px_0_rgba(255,82,82,0.4)]! whitespace-nowrap h-[48px]! py-[12px]! !px-[24px] border! border-red-600! bg-red-100! text-red-600!"
     });
   },
   success(message: string) {
